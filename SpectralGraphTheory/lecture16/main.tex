@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 16: SDPs, Effective Resistance and PageRank.}{Scribe: Erasmo Tani}
+
+\section*{SDPs with rank-one solutions}
+Eigenvalue problem:
+\begin{align*}
+    \max \; & \; A \cdot X\\
+    & I \cdot X = 1 \\
+    & X \succeq 0
+\end{align*}
+\textbf{Fact:} if $A$ and $B$ are symmetric and $\exists X \succeq 0\in \R^{n\times n}$ and $a,b \in \R$ s.t.:
+\begin{align*}
+    A \cdot X = a\\
+    B \cdot X = b
+\end{align*}
+Then there exists $x \in \R^n$ such that:
+\begin{align*}
+    x^TAx = a\\
+    x^TBx = b
+\end{align*}
+(i.e. $X$ can be taken to be $xx^T$).
+
+Recall: Balanced Cut SDP:
+\begin{align*}
+    \min \;& \;L \cdot X\\
+    s.t.  \;&\;L(K_G)\cdot X = Vol(G)\\
+    & \;\forall i \in V: \hspace{2mm} L(S_i)\cdot X \leq \frac{1}{b}
+\end{align*}
+
+Since we are working with laplacians we may use Johnson-Lindenstrauss to reduce dimensionality.
+
+
+issue: when given a graph with $n$ vertices the SDP solution is some $n \times n$ matrix which is taken to be an inner product matrix. We have $X = V^TV$ since $X \succeq 0$. The columns of $V$ are the embeddings of the vertices in $\R^n$.\\
+
+Let's now look at another SDP problem:
+
+\begin{align*}
+    \min \;&\; L \cdot X\\
+    &\; L_{st} \cdot X = 1
+\end{align*}
+$L$ Laplacian of $G = (V,E)$, $\{s,t\} \subseteq V$.
+
+\begin{align*}
+    \min \; &\; x^TLx\\
+    & \; x^TL_{st}x =1\\
+    &\; (x_s - s_t)^2 = 1
+\end{align*}
+Reminder: $L_{st} = (e_s - e_t)(e_s - s_t)^T$. Let's look at the dual of this SDP:
+\begin{align*}
+    \max \;&\; \alpha\\
+    & \; L \succeq \alpha L_{st}\\
+    & \; \alpha \geq 0
+\end{align*}
+
+\textbf{Complementary Slackness:} Under mild conditions, which are satisfied here, an optimal solution pair $(X^*,\alpha^*)$ it must be true that $X^*\cdot (L-\alpha^*L_{st})=0$.
+
+\[
+    L \succeq \alpha^* L_{st}
+\]
+
+\[
+    I \succeq \alpha^* L ^{-1/2}L_{st}L ^{-1/2}
+\]
+
+\[
+    y = \frac{L ^{-1/2}(e_s - e_t)}{(e_s - e_t)^TL ^{-1}(e_s-e_t)}
+\]
+\[
+    x^* = \frac{L^{-1}(e_s - e_T)}{(e_s - e_T)^TL^{-1}(e_s - e_T)}
+\]
+\[
+    X^*= x^*x^{*^T}
+\]
+How can we write $L^{-1}$, given that $L$ is not invertible? We use $L^{+}$ where $L^{+}$ is the Moore-Penrose pseudoinverse.
+which satisfies:
+\[
+    L^{+}\vec{1} = 0
+\]
+and:
+\[
+    L^{+}L v = v \hspace{5mm}\text{ for } \hspace{5mm}v\perp \vec{1}
+\]
+
+\section*{Electrical Circuits}
+Suppose the weighted graph $G=(V,E, w)$ is an electrical circui where the resistance is given by the ivnerse of the of the weight:
+\[
+    r_e = \frac{1}{w_e}
+\]
+\begin{enumerate}
+    \item If I have:
+    \[
+        V_s = 1
+    \]
+    \[
+        V_t = 0
+    \]
+    what is the voltage everywhere else?
+    We can cast this as a minimum energy problem:
+    \begin{align*}
+    \min \;&\; \sum_{\{i,j\}\in E} w_{i,j} (V_i - V_j)^2\\
+    &\; V_S - V_t =1
+    \end{align*}
+    The quantity $\min \; \sum_{\{i,j\}\in E} w_{i,j} (V_i - V_j)^2$ is also known as the inverse of the effective resistance, since it represents the inverse of the resistance of a graph as a whole. (i.e. if the graph was a resistor, what would its resistance be). The inverse effective resistance is also known as the effective conductance.
+\end{enumerate}
+
+\section*{Personalized PageRank}
+The personalized PageRank is a kind of random walk over the graph. Normally we define the random walk by the transition matrix:
+\[
+    W= AD^{-1}
+\]
+The personalized PageRank random walk is defined by:
+\[
+    PR_{\alpha} = \alpha \sum_{t = 0 }^{\infty}(1- \alpha)^t W^t
+\]
+This was used by Google to measure the reputation/importance of webpages. 
+Exercise: we can write
+\[
+    \alpha \sum_{t = 0 }^{\infty}(1- \alpha)^t W^t = \alpha(I - (1-\alpha)W)^{-1} = \alpha D(D - (1-\alpha)A)^{-1} =  D\left(D + \frac{(1-\alpha)L}{\alpha}\right)^{-1}
+\]
+
+Remark: PageRank is a mix of the eigenvector and the effective conductance problems. 
+\begin{align*}
+    \min \;&\;\sum_{\{i,j\}\in E} ||v_i - v_j||^2\\
+    \text{s.t.}\; &\; \sum_{i < j}\frac{d_id_j}{Vol(G)}||v_j - v_i||^2 = 1\\
+    & \; (v^Ts)^2\geq 1
+\end{align*}
+I'm trying to find a vector which has length 1, minimizes $L\cdot X$ and satisfies $X \cdot ss^T \geq c$. the solution to the problem happens to be:
+\[
+    X^* = PR_{\alpha}s.
+\]
+\end{document}
+

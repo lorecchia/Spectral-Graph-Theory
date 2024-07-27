@@ -1,0 +1,206 @@
+\section{The Spectral Theorem}
+
+In this lecture, we will review our most important tool for dealing with symmetric matrices: the spectral theorem. We start by recalling the idea of eigenvector and eigenvalue of a square matrix.
+
+\begin{definition} % EIGENVECTOR
+For a matrix $\mM \in \R^{n \times n}$ and a vector $\vx \in \R^n$, suppose that
+$$  
+\mM\vx = \lambda \vx.
+$$
+Then, we call  $\lambda$ an \textrm{eigenvalue} of $\mM$ and $\vx$ the associated \textrm{eigenvector}.
+\end{definition}
+In all our course, the underlying field will be the real numbers, so, unless specified otherwise, we will assume that the eigenvalues must be real. All the material in this lecture can be generalized to Hermitian matrices over the complex field.
+
+
+\begin{theorem}[Spectral Theorem for Symmetric Matrices] \label{thm:spectral}
+If $\mM$ is a real symmetric $n\times n$ matrix, then $\mM$ has a full orthonormal basis of eigenvectors, i.e, $\mM$ can be written as
+\begin{align}\label{eqn:eigendecomp}
+\mM = \mV \Lambda \mV^T = \sum_{i=1}^{n} \lambda_i \vv_i \vv_i^T
+\end{align}
+where the columns $\vv_1, \ldots, \vv_n \in \R^n$ of $\mV$ are an orthonormal basis of eigenvectors and $\mathbf{\Lambda}=\diag(\lambda_1, \ldots, \lambda_n)$ is a diagonal matrix of the corresponding eigenvalues.
+\end{theorem}
+Equation~\ref{eqn:eigendecomp} is called an {\it eigenvector decomposition} of $\mM$. You should familiarize yourself with both forms of the eigenvector decomposition. The form $\mV \mathbf{\Lambda} \mV^T$ conveys the fact a change of basis to the basis $\mV$ makes the matrix $\mM$ diagonal. The other equivalent form is useful to visualize $\mM$ as a sum of projection onto the eigenvectors. This is the case as, for a unit vector $\vv$, the matrix $\vv\vv^T$ represent the linear operator that takes any vector $\vx$ to its projection  $(\vv^T \vx) \vv$ over $\vv.$
+
+
+You should also notice what the spectral theorem does NOT imply. In particular, notice the following slightly subtle facts for a symmetric matrix $\mM$:
+\begin{enumerate}
+\item The matrix $\mM$ can have infinitely many eigenvectors. In particular, suppose that there are two orthogonal eigenvectors $\vv$ and $\vu$ with the same eigenvalue $\lambda.$ Then, for any vector $\vx$ in $\textrm{Span}(\vu,\vv)$, i.e., $\vx = a \vu + b \vv$ for $a,b \in \R$, we have:
+$$
+\mM \vx = \mM  (a \vu + b \vv) = a \mM\vu + b M\vv = a\lambda \vu + b \lambda \vv= \lambda \vx.
+$$
+Hence, any $\vx$ in the span of $\vu$ and $\vv$ is itself an eigenvector with eigenvalue $\lambda.$
+More generally, an eigenvalue $\lambda$ may be associated with a subspace of eigenvectors of dimension $k.$ In this case, we say that $\lambda$ has multiplicity $k.$
+\item The above example also shows that the eigenvector decomposition is not unique. In particular, when a degenerate eigenvalue is present, any orthonormal basis of its eigenspace can be used in the decomposition.
+\end{enumerate}
+
+What about the significance of the hypothesis that the matrix $\mM$ is symmetric? In abstract linear algebra, you should always treat with suspicion any property of an operator that is based on a particular choice of matrix representation, such as symmetry. A more formal way to think about symmetric matrices is as {\it self-adjoint operators}, which requires the notion of an inner product $\langle \cdot, \cdot \rangle$ over our vector space. For now, as we are just working with $\R^n,$ we can take this to be the standard Euclidean inner product.
+
+\begin{definition} \label{def:self-adjoint}
+A linear operator $\mA: \R^n \to \R^n$ is self-adjoint if  for all $\vx,\vy \in \R^n$:
+$$
+\langle \mA\vx, \vy \rangle = \langle \vx, \mA \vy \rangle.
+$$
+\end{definition}
+It is then easy to check that, for any orthonormal basis with respect to the inner product $\langle \cdot, \cdot \rangle$, the matrix representation of $\vA$ must be symmetric. This understanding of symmetry as a property deriving from the inner product is very helpful in deriving some properties of the eigenvectors of symmetric matrices:
+\begin{lemma}\label{lem:distinct-eigenvalues}
+Let $\vx, \vy \in \R^n$ be eigenvectors of a self-adjoint operator $\mA: \R^n \to \R^n$ with distinct eigenvalues $\lambda_1 \neq \lambda_2$. Then: 
+$$
+\langle \vx, \vy \rangle = 0.
+$$
+\end{lemma}
+\begin{proof}
+Compute:
+$$
+\lambda_1 \langle \vx, \vy \rangle = \langle \mA\vx, \vy \rangle = \langle \vx, \mA\vy \rangle  = \lambda_2 \langle \vx, \vy \rangle
+$$
+The result follows because $\lambda_1 \neq \lambda_2$.
+\end{proof}
+
+To improve our grasp of the spectral theorem, we will actually spend the rest of the lecture proving it. The standard proof uses the characteristic polynomial and the Fundamental Theorem of Algebra, but for this class I want to give you a more algorithmic proof. I start by stating a claim that will be proved later.
+\begin{claim} \label{claim}
+Any non-zero symmetric $M$ has an eigenvector $x$ with non-zero eigenvalue $\lambda.$ 
+\end{claim}
+This claim is really a much weaker version of the spectral theorem. Rather than telling us that we have an orthonormal basis of eigenvectors, it tells us that one eigenvector exists. In the first part of the proof, we will show that this claim is sufficient to show the spectral theorem. In particular, we can inductively apply this claim to construct an eigenvector decomposition. More intuitively, we will assume that we have a blackbox that, given a non-zero symmetric matrix, outputs a non-zero eigenvector and show an algorithm that on input $\mM$ queries the blackbox a number of times and constructs an eigenvector decomposition of $\mM$.
+
+\begin{proof}[Proof of Spectral Theorem]
+Consider the following iterative procedure. Notice that WLOG the eigenvector guaranteed by Claim~\ref{claim} can be rescaled to have norm $1$.
+\begin{enumerate}
+\item Starting with $\mM^{1} = \mM$ and $t=1,$ repeat the following as long as $\mM^{(t)} \neq 0.$
+	\begin{enumerate}
+    \item Use Claim~\ref{claim} to obtain a unit-norm eigenvector $\vx^{t}$ of $\mM^{(t)}$ together with its associated non-zero eigenvalue $\lambda_t.$
+    \item Construct $\mM^{(t+1)}$, defined as $\mM^{(t+1)} = \mM^{(t)} - \lambda_t \vx^{(t)} {\vx^{(t)}}^T.$
+    \item If $\mM^{(t+1)}$ = 0: Terminate. 
+    \item Increment $t$ to $t+1.$
+	\end{enumerate}
+\end{enumerate}
+Let us analyze this algorithm. First, its crucial to notice that step $(\textrm{a})$ is valid because $\mM^{(t)}$ remains symmetric at every iteration, as we are only removing from it a symmetric rank-1 matrix each time.  Indeed, it is easy to unravel the iterations to see that for all $t$:
+$$
+\mM^{(t+1)} = \mM^{(1)} - \sum_{j=1}^t \lambda_j \vx^{(j)} {\vx^{(j)}}^T = \mM - \sum_{j=1}^t \lambda_j \vx^{(j)} {\vx^{(j)}}^T. 
+$$
+This form reveals that $\vx^{(t+1)}$ and $\vx^{(i)}$, for $1\leq i \leq t$, are eigenvectors of $\mM^{(t+1)}$ with distinct eigenvalues ($0$ and $\lambda_{t+1}$ respectively) and are hence orthogonal by Lemma~\ref{lem:distinct-eigenvalues}. Hence, 
+Applying this reasoning for all $t$, shows that the vectors $(\vx^{(1)}, \vx^{(2)}, \ldots, \vx^{(t)})$ are orthonormal.
+% We show that:
+% \begin{enumerate}
+% \item The vectors $(x^{(1)}, x^{(2)}, \ldots, x^{(t)})$ are eigenvectors of $M$ with non-zero eigenvalues $(\lambda_1, \lambda_2, \ldots, \lambda_t),$ and
+% \item 
+% \end{enumerate}
+% We do so by induction on $t.$ For $t=1,$ this is trivially true. Suppose the statement is true for $t=k.$ Then, for $i \leq k,$ we have:
+
+% $$
+% \lambda_{k+1}x^{(i)^T} x^{(k+1)} = x^{(i)^T} \left(\lambda_{k+1}x^{(k+1)}\right) = x^{(i)^T}M^{(k+1)}x^{(k+1)} = x^{(i)^T} \left(M - \sum_{j=1}^t \lambda_j x^{(j)}x^{(j)^T}\right)x^{(k+1)} = 0
+% $$
+
+
+% % Old proof:
+% %$$
+% %M^{(k+1)} x^{(i)} = (M - \sum_{j=1}^k \lambda_j x^{(j)} {x^{(j)}}^T)x^{(i)} = M x^{(i)} - \lambda_i x^{(i)} = 0.
+% %$$
+% %Moreover:
+% %$$
+% %\lambda_{k+1} x^{(k+1)} = M^{(k+1)} x^{(k+1)} =  (M - \sum_{j=1}^k \lambda_j x^{(j)} {x^{(j)}}^T) x^{(k+1)}
+% %$$
+% %Left-multiplying by $x^{(i)}$ and using the previous equality, we have:
+% %$$
+% % %0 = \lambda_{k+1} {x^{(i)}}^T x^{(k+1)} = {x^{(i)}}^T M x^{(k+1)} - \sum_{j=1}^k \lambda_j ({x^{(i)}}^Tx^{(j)}) \cdot ({x^{(j)}}^T x^{(k+1)}) =  \lambda_i {x^{(i)}}^T x^{(k+1)}.
+% % %$$
+% As $\lambda_i \neq 0$, this implies that $x^{(k+1)}$ is orthogonal to all the eigenvectors $(x^{(1)}, x^{(2)}, \ldots, x^{(t)})$, so that $(x^{(i)})_{i \in [k+1]}$ is an orthonormal set of vectors. 
+It remains to show that $\vx^{(k+1)}$ is an eigenvector of $\mM$ with eigenvalue $\lambda_{k+1}$. This easily follows from the orthonormality, as:
+$$
+\mM x^{(k+1)} = (\mM - \sum_{j=1}^k \lambda_j \vx^{(j)} {\vx^{(j)}}^T) \vx^{(k+1)} = \mM^{(k+1)} \vx^{(k+1)} = \lambda_{k+1} \vx^{(k+1)}.
+$$
+This completes the proof by induction. To wrap up the whole proof, we need to argue that the process terminates after some number of rounds $T \leq n.$ To do, it suffices to notice that the orthonormal sequence $(\vx^{(1)}, \vx^{(2)}, \ldots, \vx^{(T)})$ can contain at most $n$ vectors as the dimension of the underlying space is $n.$
+\end{proof}
+
+We have effectively shown a reduction from computing an eigenvector decomposition to computing a single non-zero eigenvalue and associated eigenvector. To show that such an eigenvector exists, we need to prove the claim. 
+%For reason that we will explore later, once we discuss actual algorithms for computing eigenvectors, this proof has to be existential.
+
+\begin{proof}[Proof of Claim~\ref{claim}]
+Consider the function $f: \R^n \setminus\{0\}\to \R$ for a non-zero symmetric matrix $M$:
+$$
+f(x) = \frac{\vx^T \mM \vx}{\vx^T \vx}.
+$$
+Because $\mM$ is non-zero, either the maximum or minimum of $f$ is non-zero. Without loss of generality, assume the maximum is non-zero. Otherwise, the same argument can be applied to the minimum (or to $-\mM$).
+With this assumption, we will argue that  maximum of $f$ yields a non-zero eigenvalue of $\mM$, with the maximizer being the corresponding eigenvector. To prove this, notice that $f$ is continuous and differentiable over its domain, so that at every critical point $\vx_0$ we have:
+$$
+\nabla f_\mM(\vx_0) = \frac{(\vx_0^T \vx_0) \cdot 2\mM \vx_0 - (\vx_0^T \mM \vx_0) \cdot 2\vx_0}{(\vx_0^T \vx_0)^2} = 0.
+$$
+This implies that:
+$$
+\mM \vx_0 = \frac{\vx_0^T \vx_0} {\vx_0^T \vx_0} \vx_0 = f(\vx_0) \vx_0
+$$
+showing that any critical point $\vx_0$ is an eigenvector of $\mM$ with eigenvalue $f(\vx_0).$
+% ADD STEP BY STEP DERIVATION 
+
+To show that a critical point exists, it suffices to show that $f$ achieves its maximum over its domain. For this, consider the restriction $\bar{f}$ of $f$ to the unit sphere $\vx^T\vx=1.$
+Because the fraction in $f$ is homogeneous in $\vx$, we have that $f(\vx) = \bar{f}(\frac{\vx}{\|\vx\|_2})$ for all $\vx \neq 0.$ Hence, it suffices to show that that $\bar{f}$ achieves its maximum.
+To do so, notice that $\bar{f}(\vx) = \vx^T M \vx$ is a continuous function and that the domain $\{\vx^T\vx = 1\}$ is compact, as it is closed and bounded. Then by the Bolzano-Weierstrass Extreme Value Theorem\footnote{A basic theorem in calculus, see \href{https://en.wikipedia.org/wiki/Extreme_value_theorem}{this Wikipedia page}.}, $\bar{f}$ achieves its maximum (and its minimum) over the domain and, hence, must have a critical point.
+\end{proof}
+
+
+
+
+\section{Generalized Eigenvalues and Eigenvector Decompositions}
+
+From the last section, it should be clear that the notion of self-adjointness, i.e., the abstract analogue of matrix symmmetry, is dependent on the choice of inner product. For this reason, we can develop a generalized spectral theorem for a general inner product\footnote{A word of caution: there are different ways of generalizing the spectral theorem. The way we describe here refers to considering a different inner product, in the spirit of the \href{https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix#Generalized_eigenvalue_problem}{generalized eigenvalue problem}.}. Concretely, any inner product over $\R^n$ can be represented as the quadratic form of a positive-definite matrix $\mD \in \R^{n \times n}$\cite{}:
+a
+$$
+\langle \vx, \vy \rangle_{\mD} = \langle \vx, \mD \vy \rangle = \vx^T \mD \vy.
+$$
+If we replace the Euclidean inner product in Definition~\ref{def:self-adjoint} with 
+$\langle \cdot, \cdot \rangle_{\mD}$, the notion of self-adjointness changes. For example, consider a symmetric matrix $A \in \R^{n \times n}.$ The corresponding linear operator is not self-adjoint with respect to the $\langle \cdot, \cdot \rangle_{\mD}$ inner product. However, the operator $\mD^{-1} \mA$ is, as shown by the following calculation:
+$$
+\forall \vx,\vy \in \R^n, \langle \mD^{-1} \mA \vx , \vy \rangle_{\mD} = \langle \mA \vx , \vy \rangle = \langle  \vx , \mA \vy \rangle = \langle \vx , \mD^{-1} \mA \vy \rangle_{\mD}.
+$$
+Based on this idea, we can develop a spectral thery for self-adjoint operators over general inner products over $\R^n$. This requires us to slightly change the definition of eigenvector and eigenvalue.
+\begin{definition}
+Consider a linear operator $\mM: \R^{n} \to \R^{n}$ and  vector $\vx \in \R^n$, suppose that
+$$  
+\mM\vx = \lambda \mD \vx.
+$$
+Then, we call  $\lambda$ a \textrm{ generalized eigenvalue} of $\mM$ with respect to $\mD$ and $\vx$ the associated \textrm{generalized eigenvector}.
+\end{definition}
+%
+We can now state the generalized form of the spectral theorem.
+
+\begin{theorem}\label{thm:gen-spectral}
+Let $\mM: \R^n \to \R^n$ be a linear operator that is self-adjoint with respect to the $\langle \cdot, \cdot \rangle_{\mD}$ inner product. Then, $\mM$ has a full $\mD$-orthonormal basis of generalized eigenvectors, i.e, $\mM$ can be written as
+\begin{align}\label{eqn:geneigendecomp}
+\mM = \mV \Lambda \mV^T \mD = \sum_{i=1}^{n} \lambda_i \vv_i \vv_i^T \mD
+\end{align}
+where the columns $\vv_1, \ldots, \vv_n \in \R^n$ of $\mV$ are a  $\mD$-orthonormal basis of generalized eigenvectors and $\mathbf{\Lambda}=\diag(\lambda_1, \ldots, \lambda_n)$ is a diagonal matrix of the corresponding generalized eigenvalues.
+\end{theorem}  
+
+It is possible to prove this theorem by the same variational argument as was used for Theorem~\ref{thm:spectral}. We show a simpler argument based on a direct reduction to Theorem~\ref{thm:spectral}. 
+\begin{proof}
+Consider the operator $\mD^{1/2} \mM \mD^{-1/2}$. It is easy to check that this operator is self-adjoint with respect to the standard inner product:
+\begin{align*}
+\langle \mD^{1/2} \mM \mD^{-1/2} \vx, \vy \rangle &=  \langle \mM \mD^{-1/2} \vx, \mD^{-1/2} \vy \rangle_{\mD} = \langle  \mD^{-1/2} \vx, \mM \mD^{-1/2} \vy \rangle_{\mD} \\ &= \langle \vx,  \mD^{1/2} \mM \mD^{-1/2} \vy \rangle
+\end{align*}
+Hence, there exists an orthonormal basis of eigenvectors $\mU$ such that
+$
+\mD^{1/2} \mM \mD^{-1/2} = \mU \mathbf{\Lambda} \mU^T.
+$
+Letting $\mV=\mD^{-1/2} \mU $ yields the required decomposition:
+$$
+\mM = \mD^{-1/2}  \mU \mathbf{\Lambda} \mU^T \mD^{1/2} = \mV \mathbf{\Lambda} \mV^T \mD.
+$$
+Moreover, the columns of $\mV$ form a $\mD$-orthonormal basis, as $\mV^T \mD \mV = \mU^T \mU = \mI.$
+\end{proof}
+
+
+\section{Exercises}
+
+\begin{exercise}
+Show that the Hessian of $f(x)$ at a critical point $x_0$ with  $\|x_0\| = 1$ is
+$$
+\nabla^2 f(x) = 2M - 2 f(x_0) I.
+$$
+\end{exercise}
+
+
+\begin{exercise}
+Let $M$ be a symmetric $n\times n$ matrix. Use the spectral decomposition of $M$ to show that there exists an $n \times n$ symmetric matrix $M^{1/2}$ such that:
+\[
+	\left(M^{1/2}\right)^2 = M
+\]
+\end{exercise}

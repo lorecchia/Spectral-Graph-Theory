@@ -1,0 +1,121 @@
+\usepackage{fixltx2e,amsmath,amssymb,amsthm,amsfonts,graphicx, mathtools,tipa,gensymb,geometry, footmisc, pdflscape}
+\usepackage[colorlinks,citecolor=blue,bookmarks=true,linkcolor=black]{hyperref}
+
+% Allows for mathbb{1} by doing \mathds{1}
+\usepackage{dsfont}
+
+\usepackage{algorithm, subcaption}
+\usepackage[noend]{algpseudocode}
+
+
+\usepackage{subfiles} % work with multiple files
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{convention}[theorem]{Convention}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem*{note}{Note}
+
+%%%%%%%%%%% COMMANDS
+
+
+\newcommand{\ignore}[1]{}
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+
+\newcommand{\myappendix}[1]{\section{#1}}
+\newcommand{\str}{^{*}}
+\newcommand{\lang}{\mathcal{L}}
+\newcommand{\DFA}{(Q,\Sigma,\delta,q_0,F)}
+\newcommand{\emptystr}{\text{\textepsilon}}
+\newcommand{\powerset}[1]{\mathcal{P}(#1)}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Var}{\text{Var}}
+\newcommand{\cay}[3]{\Gamma(#1 \char`\\ #3 , #2)}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+\newcommand{\E}[2]{\underset{{#1}}{\mathbb{E}}\left[#2\right]}
+
+\newcommand{\ip}[2]{\left\langle#1, #2\right\rangle}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+%%%%%%%%%% JELENA's COMMANDS
+\newcommand{\innp}[1]{\left\langle #1 \right\rangle}
+\newcommand{\bdot}[1]{\mathbf{\dot{ #1 }}}
+\newcommand{\OPT}{\operatorname{OPT}}
+\newcommand{\mA}{\mathbf{A}}
+\newcommand{\ones}{\mathds{1}}
+\newcommand{\zeros}{\textbf{0}}
+\newcommand{\vx}{\mathbf{x}}
+\newcommand{\vxh}{\mathbf{\hat{x}}}
+\newcommand{\vyh}{\mathbf{\hat{y}}}
+\newcommand{\vzh}{\mathbf{\hat{z}}}
+\newcommand{\vvh}{\mathbf{\hat{v}}}
+\newcommand{\vwh}{\mathbf{\hat{w}}}
+\newcommand{\vzb}{\mathbf{\overline{z}}}
+\newcommand{\vxb}{\mathbf{\overline{x}}}
+\newcommand{\vzt}{\mathbf{\tilde{z}}}
+\newcommand{\vxt}{\mathbf{\tilde{x}}}
+\newcommand{\vy}{\mathbf{y}}
+\newcommand{\vz}{\mathbf{z}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\vg}{\mathbf{g}}
+\newcommand{\vp}{\mathbf{p}}
+\newcommand{\vd}{\mathbf{d}}
+\newcommand{\vu}{\mathbf{u}}
+\newcommand{\vw}{\mathbf{w}}
+\newcommand{\init}{\mathrm{init}}
+\newcommand{\veta}{\bm{\eta}}
+\newcommand{\vetah}{\bm{\hat{\eta}}}
+\newcommand{\defeq}{\stackrel{\mathrm{\scriptscriptstyle def}}{=}}
+\newcommand{\etal}{\textit{et al}.}
+\newcommand{\tnabla}{\widetilde{\nabla}}
+
+
+
+%%%%%%%%%%%%%%%
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\leftmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\usepackage{dsfont}
+
+% Enumerate Lists with letters, numerals,...
+\usepackage{enumerate}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+%
+%\renewcommand{\chaptermark}[1]{%
+%\markboth{\chaptername
+%\ \thechapter.\ #1}{}}
+
+%\usepackage{afterpage}
+
+%\newcommand\blankpage{%
+%    \null
+%    \thispagestyle{empty}%
+%    \addtocounter{page}{-1}%
+%    \newpage
+%}
+
+% in the text use:
+% \afterpage{\blankpage}
+% to make a blank page

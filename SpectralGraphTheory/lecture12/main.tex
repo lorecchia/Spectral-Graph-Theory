@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 11: Flow-Based Partitioning and Rounding }{Instructor: Lorenzo Orecchia}{Scribe: Erasmo Tani}
+\section*{Rounding of the Leighton-Rao Relaxation}
+distance over $G$ by lenght over the edges.
+\[
+    W = \sum_{e\in E} \ell_e
+\]
+\[
+    \sum_{v_1, v_2\in V} d_{i,j} \geq 1
+\]
+Te above says that the average distance is about $\frac{1}{\binom{n}{2}}$. We want to round this to an $\ell_1$-metric. We will conside two cases: an easy case and a hard case.
+\begin{itemize}
+    \item[(Easy case)] There exists a component $T\subseteq V$ with radius $\frac{1}{2n^2}$ such that:
+    \[
+        |T| \geq \frac{2}{3}
+    \]
+    The intuition is that there is a subset of points that has very low variance and hence the remaining points must lie far away from them. Formally we have the following claim:\\
+    \textbf{Claim:} in this case we have:
+    \[
+        \sum_{u \in V\backslash T} d(u,T)\geq \frac{1}{2n}
+    \]
+    \begin{proof}
+        We have: $\forall u,v$:
+        \[
+            d(u,v)\leq d(u,T) + d(v,T) + \frac{1}{n^2}
+        \]
+        since $1/n^2$ is the diameter of $T$. But then:
+        \[
+            1 \leq \sum_{\{u,v\}} d_{u,v} = \frac{1}{2}\sum_{(u,v)\in V\times V} \left( d(T,u) + d(T,v) + \frac{1}{n^2}\right) < n \cdot \sum_{w \in V \setminus T}d(T,w) + \frac{1}{2}
+        \]
+        giving us the desired result.
+    \end{proof}
+    \textbf{Goal:} come up with an $\ell_1$-embedding $\vec{y}_i$ with $i\in V$ such that:
+    \begin{enumerate}
+        \item \[\frac{\sum ||y_i - y_j ||}{\sum_{\{u,v\}}||y_u - y_v||} \leq 3W
+        \]
+        We will use a Frechet-type embedding:
+        \[
+            y_i = d(T,i)
+        \]
+        One nice property of these embeddings is that, for all $i,j$:
+        \[
+            |y_i - y_j| \leq d_{ij}
+        \]
+        so that the embedding is always a contraction. And we then have:
+        \[
+            \sum_{\{i,j\}\in E}|y_i - y_j|\leq \sum_{\{i,j\}\in E} d_{i,j} = W
+        \]
+        \begin{align*}
+        \sum_{\{u,v\}} |y_u - y_v| &\geq  \sum_{u \in V \setminus T}\sum_{v \in T}|y_u - y_v| = |T| \sum_{u \in V \setminus T}y_u = |T|\cdot \frac{1}{2n}\geq \frac{1}{3}
+        \end{align*}
+    \end{enumerate}
+    \item[(Hard Case)]There exists no component $T\subseteq V$ with radius $\frac{1}{2n^2}$ such that:
+    \[
+        |T| \geq \frac{2}{3}
+    \]
+    Here, the following structure lemma comes in handy :
+    \begin{lemma}[Structure Lemma]
+    Assuming the above setup, for any $\Delta >0$ we can partition $G$ into components of radius $r \leq \Delta$ such that the number of edges connecting the different components is less than or equal:
+    \[
+        \frac{4W\log n}{\Delta}
+    \]
+    \end{lemma}
+    Now, for our proof to work we will also assign a volume of $W / n$ to each vertex, so that the total volume (over edges and vertices together) is $2W$.
+    We will give a constructive proof. Consider the following algorithm:
+    \begin{enumerate}
+        \item Pick a vertex $v$ and grow a ball in this pipe system. We define the following two quantities:
+        \[
+            B(v,r) := \{ u \in V\mid d_{uv}\leq r\}
+        \]
+        \[
+            V(s,r):= \frac{W}{n}+ \sum_{\{u,v\} \subseteq B(s,r)} c_{uv}\ell_{u,v} + \sum_{\{u,v\} \in \delta(B(s,r))}c(u,v)(r- d_{us})
+        \]
+        Note that you only count the volume of a vertex if it is at the root. We can also talk about the \emph{capacity} of the ball:
+        \[
+            C(s,r) = \sum_{\{u,v\}\in \delta(B(s,r))\cap E} c_{uv}
+        \]
+        We then have:
+        \[
+            \frac{dV(s,r)}{dr} = C(s,r)
+        \]
+        whenever the derivative is defined. (In some points we will instead have a left derivative and a right derivative.)
+        We will now track:
+        \[
+            \ln V(s, \Delta) - \ln V(s,0) = \ln \frac{V(s, \Delta)}{V(s,0)} = \int_{0}^1 \frac{1}{V(s,r)}\cdot \frac{\partial V(s,r)}{\partial r} dr = \int_{0}^{1} \frac{C(s,r)}{V(s,r)} dr
+        \]
+        \[
+            \ln n = \ln \frac{W}{W/n} \geq \ln \frac{V(s,\delta)}{V(s,0)}\geq \Delta \cdot \underset{r \in [0,\Delta]}{\min}\frac{C(s,r)}{V(s,r)}
+        \]
+        You can find $B(s,r_S)$ such that:
+        \[
+            \frac{C(s,r_s)}{V(s,r_s)}\leq \frac{\log n}{\Delta}
+        \]
+        \[
+        C(s,r_s) \leq \frac{\log n}{\Delta}\cdot V(s,r(s))
+        \]
+        We may now remove this ball and reiterate.
+        \[
+            \sum C(s, r_S) \leq \frac{\log n}{\Delta}
+        \].
+        So we can find a cut $(\overline{S},S)$ where $1/3n \leq |S| \leq 2/3n$
+        \[
+            \alpha_1(S, \overline{S}) = \frac{E(S, \overline{S})}{|S||\overline{S}} \leq \frac{4Wn^2 \log n}{n^2/9} = O(W \log n)
+        \]
+        An alternative proof of this can be done by constructing an $\ell_1$ embedding and showing that under the assumption of case $2$ we can find two balanced sets that are at least $\delta$-separated.
+    \end{enumerate}
+\end{itemize}
+\end{document}

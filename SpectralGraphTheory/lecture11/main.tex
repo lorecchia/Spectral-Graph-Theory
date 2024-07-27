@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 11: Flow-Based Partitioning and Rounding }{Instructor: Lorenzo Orecchia}{Scribe: Erasmo Tani}
+\section*{Recap From Last Time: Flow Based Graph Partitioning}
+Our goal is to approximately solve the minimum conductance cut problem:
+\[
+    \overline{\phi} = \underset{S \subseteq V}{\min}\; \overline{\phi}(
+    S)
+\]
+Our approach is to use a metric relaxation. There is a cut polytope: the set of all $\ell_1$-embeddable metrics, which is the same as the convex hull of the cut metrics. The first relaxion we used was the spectral relaxion (SDP relaxation). We will now look at a different relaxation that is a linear program: the metric relaxation. Here we let $\{d\}$ be any metric. Check: the set of metrics is a cone containing the cone of cut metrics.
+We looked at the linear programme:
+\begin{align*}
+    \min \hspace{2mm}& \hspace{2mm}\sum_{e \in G} \delta_e\\
+    \text{s.t.}\hspace{2mm}&\hspace{2mm}\sum \frac{d_id_j}{vol(G)}\delta_{ij} = 1\\
+    &\hspace{2mm}\forall i,j \forall p \in P_{ij}\hspace{4mm}\delta_{ij}\leq \sum_{e\in p}\delta_e
+\end{align*}
+That is equivalent to minimizing $\delta_{G}/ \delta(L(K_G))$ in an unconstrained setting, since we are optimizing over a cone. Think of intersecting an hyperplane with the metric cone.
+
+The spectral approach only works when you ahve $d_id_j$, here we can generalize to optimize a wider category of objectives. In particular, for any $\mu$ we may define:
+\[
+    \alpha_{\mu}(S) = \frac{E(S,\overline{S})}{\mu(S),\mu(\overline{S})}
+\]
+(Here think of $\mu$ as being a metric). If $\mu$ is $1$ for every vertex then the quantity above is the expansion.
+We will then rewrite the above problem as:
+\begin{align*}
+    \min \hspace{2mm}& \hspace{2mm}\sum_{e \in G} \ell_e\\
+    \text{s.t.}\hspace{2mm}&\hspace{2mm}\sum \mu_i\mu_j\delta_{ij} \geq 1\\
+    &\hspace{2mm}\forall i,j \forall p \in P_{ij}\hspace{4mm}\delta_{ij}\leq \sum_{e\in p}\ell_e
+\end{align*}
+The dual then becomes the following multi-commodity flow problem:
+\begin{align*}
+    \max \hspace{2mm}& \hspace{2mm}\alpha\\
+    \text{s.t.}\hspace{2mm}&\hspace{2mm}\forall e \in E \sum_{e \in p} f_p \leq 1\\
+    &\hspace{2mm}\forall i,j \sum_{p \in P_{ij}} f_p \geq \alpha\mu_i\mu_j\\
+    &\hspace{2mm}\forall p \hspace{2mm} f_p \geq 0
+\end{align*}
+
+If what is preventing you from doing the routing above is a cut then this relaxation will find the cut, otherwise if the flow is stopped by something other than cut (as it happens, for instance, in expander graphs) the relaxation could be as bad as $\log n$ away from the optimal.\\
+
+\section*{Rounding}
+Once I find a solution using the above LP, I will need to round it to a point in the cut cone.
+
+\begin{lemma}[Cut is obvious]
+Let $M = \mu(V)$. Assume there exists a set $S \subseteq V$ satisfying:
+\[
+    \mu(S) \geq \frac{M}{C} \text{ s.t. }\forall i,j \in S
+\]
+\[
+    \delta_{ij}\leq \alpha
+\]
+for some constant $C$.
+\end{lemma}
+
+{\color{red} To be fixed:}
+\begin{align*}
+    \sum_{j \in V\backslash S}\mu_jd(j,S) &\leq \sum_{j \in V \backslash S}\mu_i \sum_{k \in V} \mu_k(d_{jk} + d(k,S))\\
+    &= \sum_{(j,k)\in V\times V}  \mu_j\mu_kd_{jk}+\mu(V)\sum_{k \in V} \mu_jd(k,S)
+\end{align*}
+
+
+
+\end{document}

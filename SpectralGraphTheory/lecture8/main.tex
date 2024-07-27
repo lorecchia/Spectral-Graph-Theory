@@ -1,0 +1,105 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 8: Intro to Graph Cuts and Spectral Gap}{Instructor: Lorenzo Orecchia}{Scribe: Erasmo Tani}
+
+\section*{Introduction}
+Recall: 
+\begin{lemma}
+$\lambda_2 = 0$ iff $G$ is disconnected.
+\end{lemma}
+Ideally we would want to prove some result on the lines of :
+\begin{lemma}
+$\lambda_2$ is ``almost'' zero iff $G$ is ``almost disconnected''
+\end{lemma}
+
+Note that for any $v\perp \vec{1}$:
+\begin{align*}
+    \lambda_2 \leq \frac{v^tLv}{v^TDv} \longrightarrow ``\text{small cuts}''
+\end{align*}
+the above operation is called rounding, since we round a fractional value to an integral one.
+
+\begin{definition}[Graph Conductance]
+Given a graph $G=(V,E)$, and a subset $S \subseteq V$ the \emph{conductance} of $S$ is the quantity:
+\begin{align*}
+    \phi(S):= \frac{|E(S,\overline{S})|}{\min\{vol(S),vol(\overline{S})\}}
+\end{align*}
+the \emph{graph conductance} of $G$ is the the number:
+\begin{align*}
+    \phi(G):= \underset{S \subseteq G}{\min}\hspace{2mm} \frac{|E(S,\overline{S})|}{\min\{vol(S),vol(\overline{S})\}}
+\end{align*}
+\end{definition}
+Intuitevely, the conductance is a sort of isoperimetric ratio. It also has an interpretation in terms of random walk. Suppose we are given distribution $\pi$ over $S$ where, for each $s \in S$ $\pi(s) \propto d_s$, what is the probability of leaving $S$ in a step of the random walk given that the current position is chosen according to $\pi$. You could change the denominator of the conductance with any other measure on the vertices of $G$. This notion plays an important role in community detection and is used a lot, for instance, in image segmentation.
+
+\section*{Minimum Conductance Problem}
+The minimum conductance problem is the problem of finding a minimum conductance cut in the graph.\\
+
+\textbf{Example: n-Cycle} the conductance of an $n$-cycle is $\frac{1}{n}$.\\
+
+\textbf{Example: Complete Graph} 
+Any cut into $S$ and $\overline{S}$ s.t.: $|S| = k$ satisfies:
+\begin{align*}
+    \phi_{K_n} = \frac{k(n-k)}{(n-1)k} = \frac{n-k}{n-1} \approx \frac{1}{2}
+\end{align*}
+
+In lots of real world graphs the structure exhibits a large, well connected core, and a few vertices that live outside of it and are connect to it via few edges. In these cases the conductance is not particularly informative, later in the class we will look at the problem of finding balanced cuts instead.\\
+
+The minimum conductance problem in NP-Hard and the best possible approximation is $O(\sqrt{\log n})$ and the best known hardness is $\omega(1)$.\\
+
+We will use the following definition of conductance istead:
+\[
+    \overline{\phi}(S) = \frac{|E(S,\overline{S}|}{Vol(S)Vol(\overline{S})} \cdot Vol(V)
+\]
+We have:
+\[
+    \phi(S) \leq \overline{\phi}(S) \leq 2 \phi(S)
+\]
+
+We will show that spectral gap is a relaxation of conductance. Recall that the spectral gap can be written as:
+\[
+    \lambda_2 = \underset{x \perp \vec{1}}{\min}\,\frac{x^TLx}{x^TDx} = \min \frac{x^TLx}{x^TL(K_G)x} = |E_{K_G}(S,\overline{S})|
+\]
+We have:
+\[
+    \overline{\phi}(S) = \frac{|E_G(S,\overline{S})|}{|E_{k_G}(S,\overline{S})|}
+\]
+A cut vector is a vector $\vec{1}_S$ defined by:
+\[
+    \vec{1}_S = \begin{cases} 1 & \text{ if }i\in S\\
+    0 &\text{otherwise}
+    \end{cases}
+\]
+We then have:
+\[
+    \vec{1}_S^TL\vec{1}_S = |\partial(S)|
+\]
+
+The previous notion of conductance is really an optimization problem over all cut-vectors:
+\[
+    \overline{\phi} = \underset{S \subseteq V}{\min}\, \overline{\phi}(S) = \underset{S \subseteq V}{\min}\; \frac{\vec{1}^T L \vec{1}_S}{\vec{1}_S^TL(K_G)\vec{1}_S} \geq \underset{x \in \mathbb{R}^n}{\min}\, \frac{x^T L x}{x^TL(K_G)x} = \lambda_2
+\]
+
+\begin{theorem}[Easy side of Cheeger's Inequality]
+We have:
+\[
+    \overline{\phi}_G \geq \lambda_2
+\]
+\end{theorem}
+This reads ``If there is a small conductance cut, then the random walks must converge slowly for some distribution''. We will prove the following:
+
+\begin{theorem}[Cheeger's Inequality]
+\[
+    \overline{\phi}_G \leq 2 \sqrt{2 \lambda_2}
+\] 
+\end{theorem}
+
+
+
+\end{document}

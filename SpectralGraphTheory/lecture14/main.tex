@@ -1,0 +1,81 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 14: SDPs and Graphs}{Scribe: Erasmo Tani}
+
+\section*{SDPs and Randomized Algorithms}
+In the last 20 years people realized that SDPs can be more powerful than LPs for designing approximation algorithms. The big problem that popularized this SDP approach was MAXCUT. Recall the definition of the MAXCUT problem:\\
+
+\noindent
+Given $G= (V,E)$, find a partition $(S,\overline{S})$ of $V$ so that the number:
+\[
+    \frac{E(S, \overline{S})}{|E|}
+\]
+is maximized. If the graph is bipartite then, the above can be made to be one (MAXCUT$(G) = 1$). In general the above problem also measure how far a graph is from being bipartite. For this problem we can look at different relaxations: LP, Spectral and SDPs. The first two only give a $1/2$-approximation which we could already get using a simple randomized algorithm that assigns each vertex to either side of the partition independently with $1/2$ probability. The question really is if we can do better than half. 
+
+\subsection*{Linear Program Relaxation Attempt}
+Let's try with a linear program. We will a variable with each vertex: $\forall v \in V, X_v \in [-1,1]$, we can frame is as ``min UNCUT'':
+If we knew there was a fixed vertex $u$ in $S$ and a vertex $v$ in $\overline{S}$ we could do:
+\begin{align*}
+    \min \;&\; \frac{1}{2} \sum_{ij\in E} \delta_{i,j}\\
+    \text{s.t.}\; &\;\forall v \in V, X_v \in [-1,1]\\
+    &\; X_u =1\\
+    &\; X_v =0\\
+    &\; \forall \{i,j
+    \}\in E, \delta_{i,j} \geq X_i + X_j\\
+    &\; \forall \{i,j
+    \}\in E, \delta_{i,j} \geq -X_i - X_j
+\end{align*}
+and then we can get a more MAXCUT-like formulation:
+\begin{align*}
+    \max \;&\; |E| - \frac{1}{2} \sum_{ij\in E} \delta_{i,j}\\
+    \text{s.t.}\; &\;\forall v \in V, X_v \in [-1,1]\\
+    &\; X_u =1\\
+    &\; X_v =0\\
+    &\; \forall \{i,j
+    \}\in E, \delta_{i,j} \geq X_i + X_j\\
+    &\; \forall \{i,j
+    \}\in E, \delta_{i,j} \geq -X_i - X_j
+\end{align*}
+and then we could just try all possible values of $u$ and $v$.
+
+\subsection*{Spectral Relaxation}
+
+\begin{align*}
+    \max \;&\;\sum_{\{i,j\}\in E}(X_i-X_j)^2\\
+    \text{s.t.}\; &\; \sum_{i\in V}{X_i^2} = |V| = n
+\end{align*}
+
+The above is the maximization of:
+\[
+    \frac{n}{4}\cdot \frac{x^TLx}{x^Tx} = \frac{|E|}{4}\lambda_{\max}(\mathcal{L})
+\]
+recall that:
+\[
+    \lambda_{\max}(\mathcal{L})= 2 \iff G\text{ is bipartite.}
+\]
+
+What is the integrality gap for this spectral relaxation?
+
+
+\subsection*{SDPs}
+\begin{align*}
+    \max \;&\; \frac{1}{4}\sum_{\{i,j\}\in E}||v_i-v_j||^2\\
+    \text{s.t.}\; &\; \forall i\in V \; ||v_i||^2 = 1
+\end{align*}
+
+\begin{align*}
+    \max \;&\;  \frac{L \cdot X}{4}\\
+    \text{s.t.}\; &\; \forall i\in V \; X_ii = 1
+\end{align*}
+
+The above SDPs achieves $0.878...$-approximation, as described in a seminal paper by Goemans and Williamson: \url{https://www2.cs.duke.edu/courses/fall16/compsci532/reading/10.1.1.3.9509.pdf}. In the next lecture we will look at balanced constraints using SDPs.
+
+\end{document}

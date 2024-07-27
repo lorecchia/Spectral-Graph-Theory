@@ -1,0 +1,148 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 15: More on SDP and MAXCUT}{Scribe: Erasmo Tani}
+
+\section*{Last Time...}
+MAXCUT: Given  $G=(V,E)$ we want to find $(S,\overline{S})$ so that $|E(S,\overline{S})|$ is maximized. Recall that there is a simple solution that gives a 1/2-approximation problem. We found that linear programming didn't beat this approximation guarantees. Spectral methods gave a 9/8 integrality gap.
+\subsection*{Vector Embedding}
+Relax: $x_i \in \R \to x_i \in \R^n$ for each vertex $v$. The SDP:
+
+\begin{align*}
+    \max \;& \;\frac{1}{4}\sum_{ij \in E} ||v_i - v_j||^2\\
+    \text{s.t.}\;& \;\forall i\; ||v_i||^2
+\end{align*}
+
+for any cut $S$ we can consider the solution:
+\[
+    v_i^{(S)} = \begin{cases}1 &if i \in S\\
+    -1 &if i \not\in S
+    \end{cases}
+\]
+we then have:
+\[
+    \text{value}(v^{(S)}) = |E(S,\overline{S})|.
+\]
+
+Note that this is kind of similar to a spectral relaxation except here we have $n$ constraints. We have that the spectral case looks like:
+\begin{align*}
+    \max\; &\; \frac{1}{4}\sum ||v_i - v_j||\\
+    s.t.\;&\;\sum d_i ||v_i||^2 = 2|E|.
+\end{align*}
+
+
+\section*{Goemans-Williamson Guarantees}
+The given spectral relaxation is called the Goemans-Williamson relaxation. Today we willl prove that the Geomans-Williamson relaxation can be rounded to a $0.87856$-approximation to MAXCUT.
+
+\subsection*{Rounding}
+Pick a direction $s$ uniformly at random and look at the inner product of the solution vectors with $s$. We will assign $i\in S$ iff $\langle v_i , s\rangle \geq 0$.\\
+
+\textbf{Proof of the Guarantee}Take a pair i,j then:
+\begin{align*}
+    \text{Pr}\left(ij \text{ is cut by rounding}\right) = \frac{\theta_{ij}}{\pi}
+\end{align*}
+
+where $\theta_{i,j}$ is the angle between $v_i$ and $v_j$. Note that one may only consider the projection of $s$ onto the 2-dimensional subspace spanned by $v_i$ and $v_j$. But recall:
+
+\begin{align*}
+    \theta_{ij} = \text{arccos}\langle v_i,v_j\rangle
+\end{align*}
+
+but then:
+\begin{align*}
+    \mathbb{E}\left[|E(S,\overline{S})|\right] = \sum_{\{i,j\}\in E} \text{arccos}(\langle v_i,v_j\rangle)
+\end{align*}
+
+We will compare the above expectation with the solution to the SDP that is an upperbound to the value of MAXCUT$(G)$.
+\begin{align*}
+    SDP = \frac{1}{4}\sum_{\{i,j\}\in E} ||v_i - v_j||^2 = \frac{1}{2}\sum_{\{i,j\}\in E}(1 - \langle v_i,v_j\rangle)
+\end{align*}
+Consider:
+\begin{align*}
+    \frac{\mathbb{E}\left[E(S,\overline{S})\right]}{SDP} = \frac{2}{\pi} \cdot \frac{\sum_{\{i,j\}\in E}\text{arccos }\langle v_i,v_j\rangle}{\sum_{\{i,j\}\in E}1-\langle v_i,v_j\rangle}
+\end{align*}
+We have:
+\begin{align*}
+    \underset{-1\leq x \leq 1}{\min}\;\frac{2}{\pi} \cdot \frac{\text{arccos}x}{1-x} \geq 0.878...
+\end{align*}
+where the minimum is attained at $x = -0.67$. There are also matching integrality gaps between these.
+
+\section*{Partitioning: Minimum Conductance}
+Recall:
+\begin{align*}
+    \underset{S \subseteq V}{\min}\; \frac{|E( S,\overline{S})|}{Vol(S)\cdot Vol(\overline{S})}\cdot Vol(G)
+\end{align*}
+Cheeger:
+\[
+    \lambda_2 \leq \overline{\phi}_G \leq 2\sqrt{2\lambda_2}
+\]
+Spectral Relaxation:
+\begin{align*}
+    \min \sum_{\{i,j\}} || v_i - v_j||^2\\
+    s.t. \sum_{i < j} \frac{d_i d_j}{Vol(G)}||v_i - v_j||^2 = 1
+\end{align*}
+
+Note that this formulation might partition in the graph in two sets of very different volume.
+\subsection*{Balanced Minimum Conductance}
+Divide-and-conquer: we would to get a partition where a relatively large fraction of the volume lies on each side. We define the $b$-balanced minimum conductance:
+\begin{align*}
+    \overline{\phi}_{G,b} = \underset{S \subseteq V}{\min}\; \overline{\phi}(S)\\
+    Vol(S) \geq b\cdot Vol(G)
+\end{align*}
+\textbf{Side Note: Integral solution to spectral relaxation}:
+\begin{align*}
+    (S,\overline{S})
+\end{align*}
+we may consider the vector:
+\begin{align*}
+    v_{i}^{(S)} = \begin{cases} \sqrt{\frac{Vol(G)}{Vol(S)Vol(\overline{S})}} & \text{ if } i \in S\\
+    0 & \text{ if }  i \in \overline{S}
+    \end{cases}
+\end{align*}
+
+Suppose now that we want to rule out cuts that are not balanced, i.e. we want to impose the constraint that:
+\[
+    \frac{Vol(S)}{Vol(G)} > b    
+\]
+or equivalently:
+\[
+    1- \frac{Vol(S)}{Vol(G)} = \frac{Vol(\overline{S})}{Vol(G)} < 1-b
+\]
+in order to make things balanced we might add a constraint:
+\[
+    ||v_i||^2 \leq \sqrt{Vol(G)} \cdot \frac{1}{b}
+\]
+Alternatively, we may think of the complete graph $K_G$ as the sum of a bunch of stars:
+\[
+    k_G = \frac{1}{2}\sum_{i \in V} d_i \cdot S_i^G
+\]
+where $S_i$ is a star graph centered at $i$. We may want to change the above blance constraint into a translation-invariant one:
+\[
+    d_{i}\sum_{j \in V}\frac{d_{i,j}}{Vol(G)}||v_i - v_j||^2
+\]
+where the above is the Laplacian quadratic form of $d_i\cdot S_i$.
+\subsection*{SDP Relaxation}
+\begin{align*}
+    \min \;&\; L \cdot X\\
+    \text{s.t.}\;&\;L(K_G) \cdot X = 1\\
+    &\forall i: \; L(S_i)\cdot X \leq  \frac{Vol(G)}{b}
+\end{align*}
+or, equivalently:
+\begin{align*}
+    \min \;&\; L \cdot X\\
+    \text{s.t.}\;&\;L(K_G) \cdot X = Vol(G)\\
+    &\forall i: \; d_i\cdot L(S_i)\cdot X \leq  d_i \frac{1}{b}
+\end{align*}
+and the dual gives:
+\begin{align*}
+    \max \;&\; \alpha - \sum \frac{d_i\beta_i }{b}\\
+    \text{s.t.}\;&\; L + \sum d_i \beta_i L(S_i) \succeq \alpha L(K_G)
+\end{align*}
+\end{document}

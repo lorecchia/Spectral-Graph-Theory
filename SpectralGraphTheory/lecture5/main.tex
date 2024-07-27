@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 5: More about $\lambda_2$}{Instructor: Lorenzo Orecchia}{Scribe: Erasmo Tani}
+
+\section*{Recap}
+So far we have looked at:
+\begin{enumerate}
+    \item Role of the Laplacian,
+    \item Continuous Random Walk,
+    \item Heat Kernel: $e^{-t(I-W)}$ this is the solution to the differential equation:
+    \[
+        \frac{dp(t)}{dt} = -(I-W)p(t)
+    \]
+    this is known as the heat equation or diffusion process.
+    We have seen how the convergence of this process depends on the second eigenvalue of the Laplapcian $\lambda_2$.:
+    \[
+        ||p(t) - \pi||_{D^{-1}}^2 \leq e^{-t\lambda_2}||p(0)- \pi||_{D^{-1}}^2
+    \]
+    \item We got some bounds on $\lambda_2$ for the cycle graph $C_n$ and we found: $\lambda_2 \leq O(\frac{1}{n^2})$ using a test vector to find x such that: $x^T1 = 0$:
+    \[
+        \lambda_2 \leq \frac{x^TLx}{x^TDx} = O\left(\frac{1}{n^2}\right)
+    \]
+    this characterization of $\lambda_2$ is useful to prove that for some starting conditions the process takes a long time to converge. However it is sometimes useful to try and prove that convergence is fast.
+\end{enumerate}
+    [...]
+    
+    \begin{lemma}
+    $\lambda_2 =0 $ iff $G$ is disconected.
+    \end{lemma}
+    \begin{proof}
+    Using the Rayleigh quotient characterization of the eigenvalues:
+    \[
+        \lambda_2 = \underset{x \perp 1}{\min}\,\frac{x^TLx}{x^TDx} 
+    \]
+    If the graph is disconnected then there exists at least two disconnected components, say $S$, and $\overline{S}$, we can then take $\mathbf{x}$ above to be:
+    \[
+        x_i = \begin{cases}\frac{1}{|S|} & \text{ if } i \in S\\
+       - \frac{1}{|\overline{S}|}& \text{ if } i \in \overline{S}
+        \end{cases}
+    \]
+    which gives:
+    \[
+        \lambda_2 \leq 0
+    \]
+    but we know:
+    \[
+        L \succeq 0
+    \]
+    and hence:
+    \[
+        \lambda_2 = 0.
+    \]
+    On the other hand, if $\lambda_2$ is zero, then there exists some eigenvalue $\mathbf{x} \perp 1$.  But then some entries of $\mathbf{x}$ are non-negative and some are negative. By looking at the quadratic form, it should be clear that there cannot be any edge connecting the set of vertices $i$ where the sign of $x_i$ non-negative, and those in which the sign is negative.
+    \end{proof}
+    ({\color{red} Spoiler Alert:} We will later see a robust version of this fact: if there is a small eigenvalue then there is a small cut. - Cheeger inequality).
+
+    We then have the following generalization:
+    \begin{proposition}
+    $G$ has $k$ connected components if and only if $\lambda_k = 0$.
+    \end{proposition}
+    \begin{proof}
+        The proof is somewhat similar to the above and makes use of the following characterization of the $k^{th}$ smallest eigenvalue, known as the Courant-Fischer theorem:
+        \[
+            \lambda_k = \underset{\substack{S \subseteq \R^n,\\ dim(s) = k}}{\min} \underset{x \in S}{\max} \frac{x^TLx}{x^TDx}
+        \]
+    \end{proof}
+    \section*{Lower Bounds on $x^TLx$}
+    \subsection*{Path graph}
+    \begin{align}\label{eqt:path-inequality}
+        x^TLx &= \sum_{i=1}^{n-1} (x_i - x_{i+1})^2 \geq \frac{(x_1 - x_n)^2}{n-1}
+    \end{align}
+    where the inequality follows by applying Cauchy-Schwartz with the $\vec{1}$ vector and the $n-1$-dimensional vector with entry $i$ equal to $(x_i-x_{i+1})$. $(\ref{eqt:path-inequality})$ is sometimes known as the \emph{path inequality}. In the above we have essentially compared the Laplacian of the path graph with the Laplacian of another graph. This is sometimes referred to as a \emph{graphic inequality}.
+    
+    \subsection*{Background: PSD Ordering}
+    We write:
+    \[
+        \forall x: \hspace{0.5cm} x^TAx \geq x^TBx
+    \]
+    as:
+    \[
+        A \succeq B
+    \]
+    this is equivalent to:
+    \[
+        A- B \succeq 0
+    \].
+    When this is true, we have that the $k^{th}$ eigenvalue of $A$ is greater than the $k^{th}$ eigenvalue of $B$. Some strange things happen when looking at the PSD ordering, for instance:
+    \[
+        A \succeq B \not\Rightarrow A^2 \succeq B^2
+    \]
+    this is a consequence of non-commutativity.
+    \section*{Graphic Inequalities}
+    \begin{enumerate}
+        \item $(n-1)L_{path} \succeq L_{1n}$,
+        \item Question: $\lambda_2(L_{path}) \geq ?$ which graph should I compare this against? We will use the complete graph, the Laplacian of which is $L(K_v) = nI - 11^T$ and hence has eigenvalues $0, n, n, ..., n$.
+        
+    \end{enumerate}
+    How does one interpret these graphic inequalities? It helps to think of the consequences that these inequalities have on random walk processes.
+    \section*{Lowerbounds on $\lambda_2$}
+    $(n-1)L_p \geq L_{1n}$ for any pairs of vertices $i,j$:
+    $(j-1)L_P \geq L_{ij}$
+    We then have:
+    \[
+        \sum_{i<j} (j-i)L_P \geq \sum_{i<j}L_{i,j} = L(K_v)
+    \]
+    which gives:
+    \[
+        O(n^3) \geq L(K_v)
+    \]
+    \[
+        O(n^3)\lambda_2(L_{path}) \geq n
+    \]
+    \[
+        O\left(\frac{1}{n^2}\right) \geq \lambda_2{(L_{path})} \geq \Omega\left(\frac{1}{n^2}\right)
+    \]
+    
+    \section*{Complete Binary Tree}
+    Just like the path the complete binary tree is acyclic and removing an edge disconnects the graph. However the $\lambda_2$ can be very different.
+\end{document}

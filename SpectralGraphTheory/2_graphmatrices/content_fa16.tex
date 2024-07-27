@@ -1,0 +1,203 @@
+   
+
+\section{Introduction to Spectral Graph Theory}
+
+The core idea of the spectral approach is to look at graphs as symmetric matrices and exploit our understanding of their eigenvector decomposition. Surprisingly, the spectrum of graph matrices captures a lot of combinatorial properties of the graph. Next, we start by defining our notation for graphs and introducing a number of matrices that are associated to graphs.
+
+\paragraph{Different Ways to Look at Matrices} As we introduce such matrices, it's useful to keep in mind the following ways to interpret a square matrix $A \in \R^{n \times n}$ as defining a function:
+\begin{itemize}
+\item {\bf Matrix as Linear Operator}: The matrix $A$ defines a linear mapping from $\R^n$ to $\R^n$, i.e.:
+\begin{align*}
+f_A: \R^n \to \R^n, \qquad f_A(x) = Ax
+\end{align*}
+\item {\bf Matrix as a Quadratic Form}: The matrix $A$ defines a quadratic function from $\R^n$ to $\R$:
+$$
+g_A: \R^n \to \R, \qquad g_A(x) = x^TAx
+$$
+\item {\bf Matrix as a Function from $\R$ to $\R^{n \times n}$}: Though perhaps less common an interpretation, the matrix $A$ may also define a map from $\R$ to $\R^{n \times n}$:
+$$
+	h_A: \R \to \R^{n \times n}, \qquad h_A(\theta) = \theta A.
+$$
+\end{itemize}
+
+\section{Graphs and Their Associated Matrices}
+
+\paragraph{Undirected Graphs}
+Unless explicitly stated, all graphs that we will deal with in this part of the course are undirected graphs, i.e. the edges are unordered pairs of vertices and have no direction. They will also be loopless and simple (no multiple edges).
+%
+In general, an unweighted undirected graph is formally described as pair  $G= (V, E),$ where $V$ is a set of vertices and $E$ is a collection of edges, i.e. unordered pairs of vertices from $V.$ As we only consider finite graphs, we can assume without loss of generality that $V = [n] = \{i \in \mathbb{N}: 1 \leq i \leq n\},$ for some integer $n \geq 1.$
+%
+Even more generally, we can make a graph weighted by assigning a positive weight $w_e$ to every edge $e \in E.$ The graph is then described by the triplet $(V, E, \vec{w} \in \mathbb{R}_+^E).$
+
+These assumptions may seem restrictive, but they are exactly what is needed for modeling interactions between pairs of vertices where the weight may represent the strength of the interaction. For instance, the weights of the edges may represent a measure of similarity between their endpoints, as in similarity-based learning.
+%
+The main reason why we want to limit ourselves to undirected graphs is that they can naturally be represented as {\it symmetric} square matrices. 
+
+\paragraph{The Adjacency Matrix} The first graph matrix we introduce is the most intuitive representation of an undirected graph.
+\begin{definition}
+The adjacency matrix $A_G$ of a graph $G=(V,E, \vec{w})$ is a $n \times n$ square matrix with
+$$
+(A_G)_ {ij}= 
+							\begin{cases}
+							w_{ij}, \enspace \{i,j\} \in E \\
+							0,       \enspace \textrm{otherwise}
+							\end{cases}
+$$
+\end{definition}
+It should be clear by the undirectedness of $G$ that ${A}_G$ is symmetric.
+
+%% ADD EXAMPLE OF ACTION OF A   
+
+While the adjacency matrix is a simple way of defining a graph matrix, it turns out that a normalized version of the adjacency defines a more natural operator of $\R^n:$ the random walk operator. To define this operator, we first need to introduce an auxiliary graph matrix, the degree matrix.
+
+
+
+\paragraph{The Degree Matrix}
+
+Recall that the degree $d_i$ of a vertex $i \in V$ for a weighted graph $G=(V,E, w)$ is defined as $d_i \defeq \sum_{\{i,j\} \in E} w_{ij}.$ The degree distribution will often be the natural measure over the vertices of the graph. For this reason, it is convenient to have a diagonal matrix representing degrees.
+\begin{definition}
+The degree matrix ${D}_G$ of $G=(V,E, w)$ is  the diagonal matrix such that, for all $i \in [n]$
+$$
+({D}_G)_{ii} = d_i = \sum_{\{i,j\} \in E} w_{ij}.
+$$ 
+\end{definition}
+A quick observation: when the graph $G$ is regular, i.e., all degrees are equal to some $d,$ then the degree matrix is just a multiple of the identity, $D_G = dI.$
+
+\textcolor{blue}{edit: discard isolated vertices}
+
+\paragraph{The Natural Random Walk and Its Matrix}
+
+Consider a particle moving in a random fashion over the vertices $V$ of the graph $G$ and transitioning from vertex to vertex at discrete time intervals. Let $X(t) \in V$ be a random variable describing the position of the particle at time $t \in \Z.$ The weights on the edges of $G$ regulate the random transitions of $X(t)$ as follows: suppose that at time $t$ the particle is at vertev $v$, that is $X(t) = v$. At time $t+1,$ the particle randomly picks an incident edge $\{u,v\}$, with probability proportional to its weight $w_{uv}.$ It then moves to the other end of the edge,i.e., $X(t+1)$ = u. Formally:
+$$
+\Pr[X(t+1) = u | X(t) = v] = \begin{cases}
+										\frac{w_{uv}}{d_v}, \enspace \{u,v\} \in E\\
+										0, \enspace \textrm{ow}.
+										\end{cases}
+$$
+We refer to this discrete time random process as the {\it natural random walk over the graph}. We'll study this process in detail over the next few lectures.
+
+\begin{definition}
+The random walk matrix $W_G$ of $G=(V,E,w)$ is defined as
+$$
+{W_G} = {A}_G {D}_G^{-1}.
+$$
+\end{definition}
+
+Let us now see how the matrix ${W}_G$ helps us capture the natural random walk. Suppose that at time $t$ the probability distribution of the location of the walk is described by a vector $p^{(t)} \in \mathbb{R}^n$ over the vertices of the graph. When we apply one step of the random walk, we must have, for all $i \in [n],$ the amount of probability mass at $i$ at time $t+1$ is the sum of all the contributions from neighbors of $i.$ That is:
+$$
+p^{(t+1)}_i = \sum_{\{i,j\} \in E} \Pr\{X_{t+1} = i | X_{t} = j \} \Pr\{X_{t} = j\} = \sum_{\{i,j\} \in E}
+\frac{w_{ij}}{d_j} \cdot p^{(t)}_j = {W}_G \; p^{(t)}.
+$$
+
+In words, the random walk matrix ${W}_G$ describes the transition probabilities of the random process and allows us keeps track of the {\it marginal probability} that the random walk is at a certain node. Note that there is nothing random about ${W}_G$. It just helps in describing the probability distributions arising from the random walk process.
+
+
+
+
+
+\paragraph{The Laplacian Matrix} The random walk matrix described a natural process, but it is unfortunately not symmetric in general, unless the graph is regular. A related symmetric matrix that turns out to be the most useful for Spectral Graph Theory is the Laplacian matrix. Here is one definition of the Laplacian. We'll see another in the next lecture.
+
+\begin{definition}
+The Laplacian matrix $L_G$ of $G=(V,E,w)$ is the matrix $L_G = \defeq D_G - A_G.$ Alternatively,
+$$
+(L_G)_ {ij}= 
+							\begin{cases}
+							d_i, \enspace i=j\\
+							-w_{ij}, \enspace \{i,j\} \in E \\
+							0,       \enspace \textrm{otherwise}
+							\end{cases}
+$$
+\end{definition}
+
+
+\section{Basic Properties of the Laplacian}
+
+\paragraph{Action of $L_G$}
+Consider how $L_G$ acts on a generic vector $x$:
+$$
+(L_G x)_i = ((D_G - A_G) x)_i = d_i x_i - \sum_{j \sim i} w_{ij} x_j = d_i \left(x_i - \frac{\sum_{j \sim i} w_{ij} x_j}{d_i}\right).
+$$
+This means that $(L_G x)_i$ can be thought of as a measure of how much $x_i$ differs from the weighted average value of $x$ at neighbors of $i.$ 
+
+\paragraph{Quadratic form of $L_G$} 
+The computation of $x^T L_G x$ can be greatly simplified by noticing the following property of the graph Laplacian. Define the sum of two weighted undirected graphs $G$ and $H$ on the same vertex set $V$ as the graph having edge set equal to the union of $E_G$ and $E_H$ and weights equal to the sum of the weights in $G$ and $H$ (where the weight is taken to be $0$ if the edge is absent).
+\begin{lemma}
+Let $G$ and $H$ be two graphs on the same vertex set. Then:
+$$
+L_{G+H} = L_G + L_H.
+$$
+\end{lemma}
+Using this lemma, we can express the graph Laplacian as
+$$
+L_G = \sum_{e \in E} w_e L_e,
+$$
+where $L_e$ is the Laplacian of the graph consisting of the single edge $e$. Let us now see what this simpler Laplacian looks like for an edge $\{i,j\}.$
+$$
+L_e = \bordermatrix{    & & i & & j & &\cr
+                        & \ldots & \vdots & \ldots  & \vdots & \ldots &\cr
+                        & \ldots & 1 & \ldots &-1 & \ldots &\cr
+                        & \ldots & \vdots &\ldots & \vdots &\ldots &\cr
+                        & \ldots &-1 &\ldots & 1 & \ldots &\cr
+                        & \ldots & \vdots &\ldots & \vdots &\ldots &\cr
+}
+$$
+This can be conveniently expressed as a rank-one matrix:
+$$
+L_e = (e_i - e_j)(e_i - e_j)^T,
+$$
+where $e_i$ is the $i$th standard basis vector.
+
+We can now rewrite the quadratic form of $L_G$ as:
+$$
+x^T L_G x = \sum_{\{i,j\} \in E}w_{ij} x^T L_{ij} x = \sum_{\{i,j\} \in E} w_{ij} x^T(e_i - e_j)(e_i - e_j)^Tx = \sum_{\{i,j\} \in E} w_{ij} (x_i - x_j)^2
+$$
+
+In words, the quadratic form of $L_G$ with respect to $x$ is a weighted sum over all the edges $\{i,j\}$ of the variance, i.e. disagreement, between $x_i$ and $x_j.$
+
+
+\section{Linear Algebra Review: The Spectral Theorem}
+
+Why did we strive to define graph matrices that are symmetric? Because the Spectral Theorem tells us that such matrices have a very nice form: they have an orthonormal basis of eigenvector with real eigenvalues.
+
+
+\begin{definition} % EIGENVECTOR
+For a matrix $M \in \R^{n \times n}$ and a vector $x \in \R^n$, suppose that there exists a real number $\lambda \in \R$, such that
+$$
+Mx = \lambda x.
+$$
+Then, we call $x$ an \textrm{eigenvector} and $\lambda$ an \textrm{eigenvalue} of $M.$
+\end{definition}
+In all our course, unless specified differently, the underlying field will be the real numbers. Hence, in the future, when I say ``eigenvalue'', I will mean ``real eigenvalue''.
+
+
+\begin{theorem}[Spectral Theorem for Symmetric Matrices]
+If $M$ is a symmetric $n\times n$ matrix, then $M$ has a full orthonormal basis of eigenvectors, i.e, $M$ can be written as
+\begin{align}
+M = V \Lambda V^T = \sum_{i=1}^{n} \lambda_i v_i v_i^T
+\end{align}
+where $V$ has columns $v_1, \ldots, v_n$ that are orthonormal and $\Lambda=\diag(\lambda_1, \ldots, \lambda_n)$ is a diagonal matrix of eigenvalues.
+\end{theorem}
+You should familiriaze yourself with both forms of the eigenvector decomposition. Also, notice that there could be more eigenvectors besides the columns of $V$ if some eigenvalues are equal.
+
+We will continue our linear algebra review in the next lecture.
+
+\section{Appendix}
+
+\paragraph{Further Reading} How are graphs and matrices stored in computer memory?
+Storing the full adjacency matrix requires $O(n^2)$ memory while the graph might only have very few edges. At the same time, queries and operations on the edges can be performed very fast, mostly in O(1) time. When the graph is sparse -- i.e. $|E| = O(m)$, an adjacency list representation may be preferred, even though some operations may be slightly slower.  For a discussion, see:\\ \url{http://en.wikipedia.org/wiki/Graph_\%28abstract_data_type\%29#Representations} \\
+Similarly, for matrices, different formats can be used according to whether the matrix is dense or sparse. For instance, you can have a look here:\\
+\url{http://netlib.org/linalg/html_templates/node90.html}\\
+The compressed column storage used by MATLAB can be thought of as a particular implementation of the adjacency list idea.
+
+\subsection{Exercises}
+
+\begin{exercise}
+Let $G$ be an undirected graph with unit edge weights.  A \emph{walk} of length $t \in Z_+$ between vertices $u$ and $v$ in $G$ is a sequence of vertices $(u=v_0, v_1, \ldots, v_t=v)$ such that $\{v_i, v_{i+1}\} \in E$ for all $i \in \{0,\ldots, t-1\}.$ 
+Show that, for all $t \in \Z_+$: 
+$$
+(A^t)_{i,j} = \textrm{Number of walks of length $t$ between vertices $i$ and $j$}
+$$
+\end{exercise}
+\begin{exercise}
+Let $G$ be an undirected graph and $L$ its Laplacian matrix. Show that the vector $\mathbf{1}:= (1, ... , 1) \in \R^n$ is an eigenvector of $L$. What is the corresponding eigenvalue?
+\end{exercise}

@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 10: Finishing Off Cheeger and Further Partitioning}{Instructor: Lorenzo Orecchia}{Scribe: Erasmo Tani}
+
+\section*{Finishing Cheeger}
+Recap from last time: We were giving a proof based on a metric point of view:
+\begin{itemize}
+    \item There is a characterization of conductance:
+    \[
+        \overline{\phi}:= \underset{S \subseteq V}{\min} \frac{|E(S,\overline{S})|}{|E(S,\overline{S})|} = \underset{d \in CUT_V}{\min} \, \frac{d(G)}{d(K_G)}
+    \]
+    \item $CUT_V:= $ metrics that are $\ell_1$-embeddable
+\end{itemize}
+
+We will follow the following plan:
+\begin{itemize}
+    \item Start with an eigenvector $v \perp \vec{1}$ s.t.: $\frac{x^TLx}{v^TL(K_G)v} = \lambda_{2,1}$ use $v$ to constrcut an $\ell_1$-metric $d$:
+    \[
+        d_{i,j}= || x_i - x_j||_1
+    \]
+    s.t.:
+    \[
+        \frac{d(G)}{d(K_G)}  \leq 2 \sqrt{2 \lambda_2}
+    \]
+\end{itemize}
+
+We will find a small conductance cut by looking at sweep cuts corresponding to $\ell_1$-embeddings.
+
+\begin{enumerate}
+    \item Assume $\vec{x}$ is translated such that:
+    \[
+        \sum_{x_i \geq 0} d_i= \frac{1}{2}Vol(G)
+    \]
+    \item We let $y_i = \text{sign}(x_i) \cdot x_i^2$ (tensoring trick)
+\end{enumerate}
+We have:
+\begin{align*}
+    d(G) = \sum_{\{i,j\} \in E} |y_i - y_j| &= \sum_{E} |\text{sign}(x_i)\cdot x_i^2 - \text{sign}(x_j) \cdot x_j^2|\\
+    &\leq \sum_E |x_i - x_j| (|x_i| + |x_j|)\\
+    &\leq \sqrt{\sum_E (|x_i| + |x_j|)^2 \cdot \sum_E (x_i - x_j)^2}\\
+    &\leq \sqrt{2 \sum_E (x_i^2 +x_j^2) x^TLx}\\
+    &= \sqrt{2 x^TDx \cdot x^TLx}
+\end{align*}
+We can now look at the denominator:
+\begin{align*}
+    d(K_G) = \sum_{i < j } \frac{d_id_j}{Vol(G)} |y_i - y_j|
+\end{align*}
+We can now use the assumption in (1.) and we will only look at contributions that cross the ``zero line'':
+\begin{align*}
+    d(K_G) &= \sum_{i < j } \frac{d_id_j}{Vol(G)} |y_i - y_j|\\
+    &\geq \sum_{x_i >0>x_j}\frac{d_id_j}{Vol(G)}\left(|y_i| +|y_j|\right)\\
+    &\geq \sum_{x_i > 0} \frac{d_i \frac{Vol(G)}{2}}{Vol(G)} |y_i| + \sum_{x_j<0} \frac{d_j \frac{Vol(G)}{2}}{Vol(G)}|y_j|\\
+    &= \frac{1}{2}\left(\sum_{i \in V} d_i |y_i|\right) = \frac{1}{2}\left(\sum d_i x_i^2\right) = \frac{1}{2}x^TDx
+\end{align*}
+Giving:
+\[
+    \frac{d(G)}{d(K_G)}\leq 2 \sqrt{2 \frac{x^TLx}{x^TDx}}\leq 2 \sqrt{2 \lambda_2}
+\]
+
+\section*{More Approaches to Graph Partitioning}
+\subsection*{Graph Partitioning by Metric Relaxation}
+Cheeger:
+\[
+    \min d(G)
+\]
+\[
+    \text{s.t.}\hspace{2mm} d(K_G) = 1 \hspace{5mm} d \in CUT_V
+\]
+We will now use a linear program relaxation instead. In particular we will use a network flow linear program, a type of linear program that can be solved efficiently.
+\[
+    \min d(G)
+\]
+\[
+    \text{s.t.}\hspace{2mm} d(K_G) = 1 \hspace{5mm} d \in \text{metric}_V
+\]
+this is known as the Leighton-Rao relaxation. In this class we will talk about the relaxation and we will postpone the discuss of the rounding to next time.
+\begin{align*}
+    \min & \sum_{\{i,j\} \in E} \delta_{i,j}\\
+    \text{s.t.} & \sum_{i <j} \frac{d_id_j}{Vol(G)}\delta_{i,j} = 1\\
+    &\forall i,j \forall p \in P_{i,j} \left[\delta_{i,j} \leq \sum_{e \in P}\delta_e\right]
+\end{align*}
+
+In the optimal solution, every $\delta_{i,j}$ is given by a path along $G$
+
+\begin{align*}
+    \min & \sum_{\{i,j\} \in E} \ell_{i,j}\\
+    \text{s.t.} & \sum_{i <j} \frac{d_id_j}{Vol(G)}\delta_{i,j} = 1\\
+    &\forall i,j \forall p \in P_{i,j} \left[\delta_{i,j} \leq \sum_{e \in P}\ell_e\right]
+\end{align*}
+While this primal problem might seem a little daunting due to the exponential number of constraints, it turns out its dual is a relatively simple flow problem:
+\subsection*{Dual of the Leighton-Rao problem: Maxima Multicommodity Concurrent Flow}
+Note that whenever your primal has some kind of triangle inequality constraint, its dual will be a flow problem of some kind.
+
+\begin{align*}
+    \max \hspace{2mm}&\hspace{2mm} \alpha \\
+    \text{s.t.}\hspace{2mm} &\hspace{2mm}\forall e \in E: \sum _{e \in P} f_P \leq 1\\
+    &\forall i,j  \sum_{p \in P_{i,j}}f_P \geq  \alpha \cdot \frac{d_id_j}{Vol(G)}
+\end{align*}
+in some sense you're trying to route $K_G$ into $G$ as a flow, but that is not always possible so you might have to scale things by a factor of $
+\alpha$ which you want to maximize. Finding a feasible $\alpha$ immediately certifies the conductance is at least $\alpha$. We will see next time that LR does well on a path graph.
+\end{document}

@@ -1,0 +1,125 @@
+\chapter{Positive Semidefinite Matrices}
+In this chapter we will discuss positive semidefinite (PSD) matrices, a class of operators that plays and essential role both in spectral graph theory and in optimization as a whole.
+
+\begin{definition}[PD/PSD Matrix]
+A symmetric $n \times n$ matrix $M$ is said to be \emph{positive semidefinite} (PSD) if, for all vectors $x \in \R^n$ we have:
+\[
+    x^TMx \geq 0
+\]
+we denote this by $M \succeq 0$. Similarly, a symmetric $n \times n$ matrix $M$ is said to be \emph{positive definite} (PD) if, for all $x \in \R^{n}\setminus\{0\}$:
+\[
+    x^TMx > 0
+\]
+we denote this fact as $M \succ 0$.
+\end{definition}
+
+From the spectral theorem for symmetric matrices we get the following useful characterization of PSDness:
+
+\begin{theorem}
+A symmetric $n \times n$ matrix $M$ is PSD if and only if all of its eigenvalues are non-negative, and PD if they are strictly positive.
+\end{theorem}
+\begin{proof}
+Every eigenvalue of $M$ arises as the value of $x^TMx$ for some $x \in \R^n$ (namely the corresponding normalized eigenvector) and hence if $M$ is PSD(/PD) then all eigenvalues must be non-negative(/strictly positive). On the other hand suppose that all the eigenvalues of $M$ are non-negative ($0 \leq \lambda_1 \leq ... \leq \lambda_n$) then we can write:
+\[
+    M = \sum_{i=1}^n \lambda_n v_iv_i^T
+\]
+where $v_1, ... , v_n$ is an orthonormal basis of eigenvectors of $M$. Hence, for every $x \in \R^n$:
+\[
+    x^TMx = \sum_{i=1}^n \lambda_n \langle v_i , x\rangle^2 \geq 0
+\]
+(similarly for PD matrices we get $>0$).
+\end{proof}
+
+We also state the following useful result without a proof:
+\begin{theorem}[Sylvester's Criterion]
+A matrix is PD if and only if all its leading principal minors are positive, and PSD if and only if all it's principal minors are non-negative.
+\end{theorem}
+
+We now prove a characterization of PSDness for matrices \footnote{from \href{https://people.eecs.berkeley.edu/~luca/bwca17/lectures/lecture04s.pdf}{Luca Trevisan's notes}} :
+\begin{proposition}[Characterization of PSD Matrices]
+A square matrix $M \in \R^{n\times n}$ is PSD (and hence symmetric) if and only if there exists vectors $x^{(1)}, ... , x^{(n)} \in \R^n$ such that $M_{i,j} = \langle x^{(i)}, x^{(j)} \rangle$.
+\end{proposition}
+\begin{proof}
+Suppose that $x^{(1)}, ... , x^{(n)} \in \R^n$ exist as above, then clearly the matrix $M$ is symmetric and furthermore:
+\[
+    y^TMy = \sum_{i,j} y_i M_{ij}y_j = \left\langle \sum_i y_i x^{(i)}, \sum_j y_j x^{(j)}\right\rangle = \norm{\sum_iy_i x^{(i)}}^2 \geq 0
+\]
+so $M$ is PSD. Conversely we can use the spectral decomposition of $M$ to see that:
+\[
+    M = \sum_{k=1}^n\lambda_k v^{(k)}v^{{(k)}^T}
+\]
+giving that:
+\[
+    M_{ij} = \sum_{k=1}^n \lambda_k v_i^{(k)}v_j^{(k)}
+\]
+so that we can set:
+\[
+    x_k^{(i)} = \sqrt{\lambda_k}v^{(k)}_i
+\]
+and this satisfies the desired properties.
+\end{proof}
+Note the the above proposition goes hand in hand with the fact that any PSD matrix can be decomposed as $M = B^TB$. One example of such factorization is the Cholesky Decomposition / Cholesky Factorization, where $M$ is written as $LL^*$ for some lower-triangular matrix $L$. This exists for every hermitian PSD matrix, and when the matrix $M$ only has real entries, the matrix $L$ can also be chosen to only have real entry and the factorization becomes $M= LL^T$. If $M$ is PD then $L$ the Cholesky Factorization is unique, this is not necessarily true in the PSD case.\\
+
+\begin{proposition}[PSD Matrices Form a Cone]
+Let $A,B$ be $n\times n$ PSD matrices, we then have:
+\begin{enumerate}
+    \item $A+B \succeq 0$,
+    \item if $\alpha \geq 0$ then $\alpha A \succeq 0$,
+    \item if $\alpha,\beta \geq 0$  then $\alpha A + \beta B \succeq 0$.
+\end{enumerate}
+In particular, this means that the set of PSD matrices forms a cone.
+\end{proposition}
+\begin{proof}
+We prove each of the above individually:
+\begin{enumerate}
+    \item For any $x \in \R^n$:
+    \[
+        x^T(A+B)x = x^TAx + x^TBx \geq 0.
+    \]
+    \item For any $x \in \R^n$:
+    \[
+        x^T(\alpha A) x = \alpha x^T A x \geq 0.
+    \]
+    \item Follows from the previous two parts.
+\end{enumerate}
+\end{proof}
+
+We now introduce the matrix inner product:
+\begin{definition}[Matrix Inner Product]
+Given any two $n \times n$ matrices $A,B$ their (dot) inner product is the value:
+\[
+    A \bullet B := tr(A^TB) = \sum_{i,j} A_{i,j}B_{i,j}.
+\]
+\end{definition}
+we now go on to prove that the one define above is, indeed, an inner product:
+\begin{proposition}
+The function $\bullet: \R^{n\times n}\times \R^{n\times n} \to \R$ defined above is a real inner product, i.e. satisfies:
+\begin{description}
+    \item[Symmetry] For any $A,B$ we have $A \bullet B = B \bullet A$,
+    \item[Linearity] For any $A,B,C$ and $\alpha,\beta \in \R^n$ we have $(\alpha A+ \beta B) \bullet C = \alpha (A \bullet C) + \beta (B \bullet C)$,
+    \item[Positive Definiteness] $A \bullet A \geq 0$ and $A \bullet A = 0 \iff A = 0$.
+\end{description}
+\end{proposition}
+\begin{proof}
+The inner product is clearly symmetric $(A^TB = (B^TA)^T$ so $A^TB$ and $B^TA$ have the same trace). For linearity one checks:
+
+\begin{align}
+    (\alpha A+ \beta B) \bullet C &= \sum_{i,j}(\alpha A_{i,j} + \beta B_{i,j})C_{i,j} = \alpha \sum_{i,j} A_{i,j} C_{i,j} + \beta \sum_{i,j} B_{i,j}C_{i,j} \\
+    &= \alpha (A \bullet C) + \beta (B \bullet C)
+\end{align}
+Positive definitiness is also clear since $A \bullet A$ is a sum of squares.
+\end{proof}
+
+\begin{proposition}[Properties of the Matrix Inner Product]
+Let $A$ and $B$ be symmetric matrices such that $A,B \succeq 0$ then $A \bullet B \geq 0$.
+\end{proposition}
+\begin{proof}
+Using the spectral expansion of $A$:
+\[
+    A = \sum_{i=1}^n \lambda_iv_iv_i^T
+\]
+we have:
+\[
+    A \bullet B = tr\left(\sum_{i=1}^n \lambda_i v_iv_i^TB\right) = \sum_{i=1}^n\lambda_i tr\left(v_iv_i^TB\right) = \sum_{i=1}^n\lambda_i tr\left(v_iv_i^TB\right) = \sum_{i=1}^n\lambda_i tr\left(v_i^TBv_i\right) \geq 0
+\]
+\end{proof}

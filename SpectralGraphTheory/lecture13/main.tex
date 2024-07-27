@@ -1,0 +1,155 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 13: Semidefinite Programming}{Scribe: Erasmo Tani}
+
+\section*{From Linear to Semidefinite Programming (SDP)}
+We can think of SDPs as a generalization of Linear Programming. We have seen two different relaxation: the metric relaxation that was solved by a linear program, and the spectral relaxation that was solved by an eigenvector problem. We will see today that SDP is the correct way to generalize the type of problem we solve in the spectral relaxation case.
+
+\subsection*{Linear Programming Recap}
+
+Let's start with a generic LP:
+\begin{align*}
+    \min \;&\; c^Tx\\
+    \text{s.t.} \;& \;Ax = b\\
+    & \;x \geq 0
+\end{align*}
+The input data is the matrix $A \in \R^{m \times n}$, and the vectors $b\in \R^m$, $c \in \R^n$. The constraint $x \geq 0$ is known as the conic constraint. The nice thing about linear programs is that one can define a natural notion of dual program, for which strong duality always hold. Consider the following program derived from the above one:
+\begin{align*}
+    \max \;&\; y^TB\\
+    \text{s.t.} \; & \; A^Ty \leq c\\
+    & \; y \in \R^m
+\end{align*}
+the optimal function value for the above program will always match the optimal function value for the previous one.
+
+\begin{align*}
+    \underset{\substack{y \in \R^m\\ s\geq 0}}{\max}\;\underset{x\in \R^n}{\min}\; c^Tx - y^T(Ax-b) - s^T(x-0) = \underset{x\in \R^n}{\min}\;\underset{\substack{y \in \R^m\\ s\geq 0}}{\max}\; x^T( c - A^Ty - s) +y^Tb
+\end{align*}
+\subsection*{SDPs}
+SDPs are a generalization of the eigenvector problems.:
+\begin{align*}
+    A = &\underset{x\in \R^n}{\max}\; x^TAx\\
+    & x^Tx =1
+\end{align*}
+The above program is not convex, however we can change the parametrization of the solution space, so as to make it easier to solve it:
+\[
+    X = xx^T \hspace{2cm} X_{i,j} = x_i x_j
+\]
+we then have:
+\begin{align*}
+    A = &\underset{x\in \R^n}{\max}\; A \cdot X\\
+    & I \cdot X  = 1\\
+    &X \in \R^{n \times n}
+\end{align*}
+recall that we defined the dot ( / inner) product between two matrices to be:
+\[
+    A \cdot B = Tr(A^TB)
+\]
+Note that we can use the fact that the trace is invariant under cyclic permutation of its arguments to see that:
+\[
+    Tr(x^TAx) = Tr(Axx^T) = Tr(AX) = A \cdot xx^T 
+\]
+
+Note that the program of the form:
+\begin{align*}
+    A = &\underset{x\in \R^n}{\max}\; A \cdot X\\
+    & I \cdot X  = 1\\
+    &X \in S^{n \times n}
+\end{align*}
+is still not convex. Ideally we would like to enforce a constraint that makes $X$ rank-1, however that also makes the program non-convex. We may instead optimize over convex combinations of rank-1 vectors:
+\[
+    X = \sum p_i x_ix_i^T
+\]
+with:
+\[
+    ||x_i||^2 = 1.
+\]
+We then must have:
+\[
+    I \cdot X = \sum_{i}p_i = 1
+\]
+and furthermore:
+\[
+    X \succeq 0.
+\]
+Moreover, any X obeying:
+\begin{align*}
+    &I \cdot X  = 1\\
+    &X \succeq 0
+\end{align*}
+can be written as the convex combination of rank-1 matrices, with the coefficients living in the simplex. We have a linear objective, with a linear and a conic constraint: that is because:
+\[
+    PSD_n = \{X \in S^{n \times n} \mid X \succeq 0\}
+\]
+is a cone. This can easily be shown: given $X,Y \in PSD_n$, we have:
+\[
+    z^T(aX+bY)z = a(z^TXz) + b(z^TYz) \geq 0
+\]
+ for any $a,b \geq 0$.\\
+ 
+ An important thing about convex programs is that you can solve them efficiently if you have a polynomial time procedure to check whether a certain constraint is satisfied and produce a certificate otherwise. In this case we have algorithms that check with high precision whether a matrix is PSD or not.\\
+ 
+ \subsection*{Eigenvector Problem}
+ Let's now see how SDPs can help us solve the eigenvector problem:
+ \begin{align*}
+     \max \;&\; A \cdot X\\
+     &\; I \cdot X = 1\\
+     &\; X \succeq 0
+ \end{align*}
+ The above will solve the eigenvector problem.\\
+ 
+ The equivalent version for linear programming is:
+  \begin{align*}
+     \max \;&\; a^Tx\\
+     &\; q^Tx =1\\
+     &\; x \geq 0
+ \end{align*}
+ 
+ which solves for the maximum entry of the vector $a$. Fun fact: optimization problems for quantum computers are SDPs. Consider the following program:
+\begin{align*}
+    \min \;&\; \gamma\\
+    &\; A\preceq \gamma Y
+\end{align*}
+This is the dual of the above program.\\
+
+In general, for a program:
+\begin{align*}
+    \min \;&\; C \cdot X\\
+    &\; \forall i \in [m], \; A_i \cdot X = b_i\\
+    &\; X \succeq 0
+\end{align*}
+we can apply the lagrangian trick:
+\begin{align*}
+    \underset{\substack{y \in \R^n \\ s \in \R^{n\times n}\\ S \succeq 0}}{\max} \;\underset{\substack{X}}{\min}\; C \cdot X  - \sum_i y_i(A_i\cdot X - b) - s(X - 0)\\
+    = \underset{\substack{X}}{\min}\; \underset{\substack{y \in \R^n \\ s \in \R^{n\times n}\\ S \succeq 0}}{\max} \; X \cdot( c  - \sum_i y_i A_i  - s) + y^Tb
+\end{align*}
+we then get:
+\begin{align*}
+    \max \;&\; y^Tb\\
+    &\; c = \sum y_i A_i +s\\
+    &\; \sum y_i A_i \preceq c\\
+    &\; y \in \R^m\\
+    &\; s \geq 0
+\end{align*}
+
+\section*{SDP vector embeddings}
+if $X \succeq 0$ then it can be written as: $X = V^TV$ where $V$ is the squared root of $X$. We then have:
+\[
+    X = \langle v_i, v_j \rangle
+\]
+this is useful for instance in the following example: given a graph with Laplacian $L$, I want to find an embedding solving:
+\begin{align*}
+    \min \; & \; \sum_{\{i,j\} \in E} ||v_i - v_j||^2 \iff L \cdot X\\
+    \text{s.t.} \;&\; \sum_{i < j } ||v_i - v_j ||^2 = 1 \iff L(K_G) \cdot X = 1\\
+    & \;||v_i - v_j||^2 = \langle ||v_i||^2 + 
+    ||v_j ||^2 - 2 \langle v_i, v_j \rangle = L_{ij}c\dot X.
+\end{align*}
+
+\end{document}

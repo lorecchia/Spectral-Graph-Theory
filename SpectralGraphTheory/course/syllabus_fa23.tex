@@ -1,0 +1,71 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{CMSC 35410: Spectral Graph Theory - Autumn 2023}
+\author{Lorenzo Orecchia, Konstantinos Ameranis}
+\date{September 2023}
+
+\begin{document}
+
+\maketitle
+
+\section{Admin}
+
+\begin{itemize}
+    \item \textbf{Lectures:} TR 9:30am-10:50am, JCL 011
+    \item \textbf{Instructors:} Lorenzo Orecchia, Konstantinos Ameranis
+    \item \textbf{Office Hours:}
+    \begin{itemize}
+        \item Lorenzo Orecchia: Tuesday 11am-12n, JCL 315
+        \item Konstantinos Ameranis: Thursday 1:00-3:00pm, JCL 257
+    \end{itemize}
+    \item Course Website: https://canvas.uchicago.edu/courses/52752
+    \item Gradescope: Gradescope: https://www.gradescope.com/courses/635305
+    
+\end{itemize}
+
+\section{Requirements}
+
+This is a graduate course aimed at introducing the necessary foundations to both i) tackle research-level questions and ii) apply existing techniques in a cognizant fashion.
+
+Prerequisites include familiarity with undergraduate linear algebra (matrix multiplication, eigenvalues/eigenvectors, least squares) and basic multivariable calculus (gradients, partial derivatives and integrals). You should be comfortable with basic graph algorithms, such as graph traversal, shortest-paths and network flows, though Theory of Algorithms (CMSC 27200/37200 or equivalent) is not a strict requirement,
+
+Some (minimal) programming experience, ideally in Python, will also be necessary to complete coding assignments.
+
+\section{Grading}
+\begin{itemize}
+    \item \textbf{Homework (4 Problem Sets):} 32\%
+    \item \textbf{Project:} 30\%
+    \item \textbf{Participation:} 8\%
+    \item \textbf{Take-Home Final:} 20\%
+\end{itemize}
+
+\section{Course Description}
+
+In this course we will be looking at undirected graphs (and eventually directed graphs) from a ``continuous'' rather than a combinatorial point of view, by formally viewing graphs as discretizations of manifolds. This will allows us to use convex optimization and linear algebra techniques to study graph analogues of natural dynamics, such as heat diffusions, and optimization problems over continuous spaces, such as minimum energy flows. We will deploy these insights to the solution of fundamental machine-learning problems involving graphs, 
+including clustering, manifold learning and 
+dimensionality reduction. 
+
+
+
+\subsection{Selected Topics:}
+\begin{itemize}
+    \item Linear Operators Associated with Graphs.
+    \item Optimization over Graphs
+    \item Random walks and heat diffusions over graphs. Application: distributed consensus. 
+    \item Graph embeddings. Application: graph-based manifold learning and dimensionality reductions.
+    \item Spectral graph partitioning. 
+    \item Graph Regularization. Application to Semi-Supervised Learning. PageRank.
+    \item Electrical Flows over Graphs. Effective Resistance.
+    \item Hitting Times and Commute Distances over Graphs.
+    \item Edge centrality measures.
+    \item Graph sparsification.
+\end{itemize}
+
+\section{Tentative Schedule}
+
+\input{schedule_fa23}
+
+\end{document}

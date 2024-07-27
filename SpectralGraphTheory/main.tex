@@ -1,0 +1,100 @@
+\documentclass[12pt]{book}
+\usepackage{style}
+
+\title{Spectral Graph Theory}
+\author{Lorenzo Orecchia, Erasmo Tani}
+
+\begin{document}
+
+
+\iffalse
+This is one traditional page order for books.
+
+Frontmatter
+
+   - Half-title
+   - Empty
+   - Title page
+   - Information (copyright notice, ISBN, etc.)
+   - Dedication if any, else empty
+   - Table of contents
+   - List of figures (can be in the backmatter too)
+   - Preface chapter
+
+Mainmatter
+
+   - Main topic
+
+Appendix
+
+    - Some subordinate chapters
+
+Backmatter
+
+    - Bibliography
+    - Glossary / Index
+
+
+ Chapters after the frontmatter are not numbered
+ Page numbers will be printed in roman numerals.
+ Frontmatter is not supposed to have sections, so they will be numbered 0.n because there is no chapter numbering.
+
+\fi
+
+\frontmatter
+
+\maketitle
+
+% Introductory chapters
+\chapter{Preface}
+
+% ----------------------------------------- %
+% ------------ End of Preface  ------------ %
+% ----------------------------------------- %
+
+
+\iffalse
+
+  The mainmatter chapters works as usual. The command resets the page numbering.
+  Page numbers will be printed in arabic numerals.
+
+\fi
+
+\mainmatter
+\chapter{First chapter}
+
+\include{tex/RandomWalks}
+
+% when \include is used, the extension should be avoided, otherwise the project won't compile the additional file.
+\include{tex/PSD}
+
+
+
+% ------------------------------------------ %
+% ---------- End of Main Content  ---------- %
+% ------------------------------------------ %
+
+\iffalse
+
+   The \appendix macro can be used to indicate that following
+   sections or chapters are to be numbered as appendices.
+   Appendices can be used for the article class too:
+
+\fi
+
+\appendix
+\chapter{First Appendix}
+
+\iffalse
+
+   The backmatter behaves like the frontmatter.
+   It has the same issue with section numbering.
+
+\fi
+
+\backmatter
+\chapter{Last note}
+
+
+
+\end{document}

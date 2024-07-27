@@ -1,0 +1,203 @@
+\documentclass[11pt]{article}
+\input{lnpreamble.tex}
+\usepackage[symbol]{footmisc}
+\usepackage{color}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\setlength\parindent{0pt}
+\begin{document}
+
+\handout{}{CS 591 O1: Iterative Methods for Graph Algorithms and Network Analysis}{Fall 2018}{Lecture 4: Continuos Time Random Walks and Spectral Gap}{Instructor: Lorenzo Orecchia}{Scribe: Erasmo Tani}
+
+\section*{Continuous-Time Random Walk}
+The continuous random walk is the process described by the differential equation:
+
+\[
+\frac{d p(t)}{dt} = -(I-W)p(t)
+\]
+Consider a $d$-regular graph, i.e. a graph in which every vertex $v \in V$ has degree $d_v = d$. Here $W= \frac{A}{d}$. Using the decomposition $(I-W) = U \Lambda U^T$ we get:
+\[
+    \frac{d p(t)}{dt} = -(U \Lambda U^T)p(t)
+\]
+(since in this case $(I-W)$ is symmetric).
+
+
+By applying a change of basis we can write:
+\[
+    \frac{d U^T p(t)}{dt} = -( \Lambda U^T)p(t)
+\]
+Which is equivalent to having, for $i=1, \cdots, n$:
+\[
+    \left(\frac{dU^Tp(t)}{dt}\right)_i = - \lambda_i\left(U^Tp(t)\right)_i
+\]
+
+by solving each first order ODE we get:
+\[
+    \left(U^Tp(t)\right)_i = \left((e^{-\lambda_i}U^Tp(0)\right)_i
+\]
+\textcolor{blue}{edit:
+\[
+    \left(U^Tp(t)\right)_i = \left((e^{-\lambda_it}U^Tp(0)\right)_i
+\]
+}
+
+so that:
+\[
+    U^Tp(t) = \text{diag}\left(e^{-\lambda_1}, ... , e^{-\lambda_n}\right)U^Tp(0)
+\]
+\textcolor{blue}{edit:
+\[
+    U^Tp(t) = \text{diag}\left(e^{-\lambda_1t}, ... , e^{-\lambda_nt}\right)U^Tp(0)
+\]
+}
+
+and hence:
+\begin{equation}\label{eqn:markov-chain1}
+    p(t) = U^T\text{diag}\left(e^{-\lambda_1}, ... , e^{-\lambda_n}\right)U^Tp(0)
+\end{equation}
+\textcolor{blue}{edit:
+\begin{equation}\label{eqn:markov-chain1}
+    p(t) = U\text{diag}\left(e^{-\lambda_1t}, ... , e^{-\lambda_nt}\right)U^Tp(0)
+\end{equation}
+}
+    
+\section*{Intermezzo: Matrix Exponential}
+For the sake of convenience, we introduce here the notion of matrix exponential.
+\begin{definition}[Matrix Exponential]\label{def:matrix-exponential}
+Given a symmetric matrix $M = U\Lambda U^T$, where $\Lambda =\text{diag}(\lambda_1, ... , \lambda_n)$ the \emph{matrix exponential} of $M$ is the matrix:
+\[
+    e^{M} = U\text{diag}(e^{\lambda_1, ... , \lambda_n})U^T
+\]
+\textcolor{blue}{edit:
+\[
+    e^{M} = U\text{diag}(e^{\lambda_1}, ... , e^{\lambda_n})U^T
+\]}
+
+so that $e^M$ has the same eigenvector as $M$ but eigenvalues related by: $\lambda_i(e^M) = e^{\lambda_i(M)}$.
+\end{definition}
+
+Note that:
+\begin{align*}
+    e^Y &= U^T\text{diag}_i\left(\sum_{j=0}^{\infty}\frac{\lambda_i^j}{j!}\right)U\\
+    &= \sum_{j=0}^{\infty}\frac{1}{j!} U^T\text{diag}_i(\lambda_i^j)U\\
+    &= \sum_{j=0}^{\infty}\frac{Y^j}{j!}
+\end{align*}
+
+so that we recover an matrix analogue of the familiar Taylor expansion:
+\[
+\boxed{e^Y = \sum_{j=0}^{\infty}\frac{Y^j}{j!}}
+\]
+
+We also have the following property, which we state without a proof:
+\begin{proposition}
+Given any two symmetric matrices $A$ and $B$ we have:
+\[
+    AB = BA \hspace{1cm} \Rightarrow \hspace{1cm} e^{A}e^{B} = e^{A+B}
+\]
+\end{proposition}
+
+Note that in general $e^{A+B} \neq e^Ae^B$.
+
+\section*{Back to the Markov Chain}
+In light of Definition \ref{def:matrix-exponential} we can rewrite Equation $(\ref{eqn:markov-chain1})$ as:
+
+\[
+    p(t) = e^{-\left(I - \frac{A}{d}\right)}p(0)
+\]
+
+\begin{align*}
+    \frac{dD^{-1/2}p(t)}{dt} &= D^{-1/2}(I-AD^{-1})p(t)\\
+    &= D^{-1/2}(I-AD^{-1})p(t)\\
+    &= (I-D^{-1/2}AD^{-1/2})D^{-1/2}p(t)
+\end{align*}
+
+\textcolor{blue}{edit: (maybe note that starting here the graph is not necessarily regular?)
+\begin{align*}
+    \frac{dD^{-1/2}p(t)}{dt} &= -D^{-1/2}(I-AD^{-1})p(t)\\
+    &= - (I-D^{-1/2}AD^{-1/2})D^{-1/2}p(t)
+\end{align*}
+}
+
+
+\begin{definition}[Normalized Laplacian]
+Given a graph $G$ its \emph{normalized Laplacian} is the matrix:
+\[
+    \mathcal{L} = (I- D^{-1/2}AD^{-1/2}) = D^{-1/2}L D^{-1/2}
+\]
+\end{definition}
+
+we then have:
+\begin{align*}
+    D^{-1/2}p(t) &= e^{-t \mathcal{L}}D^{-1/2} p(0)    
+\end{align*}
+so that
+\begin{align*}
+    p(t) &= D^{1/2}e^{-t\mathcal{L}}D^{-1/2}p(0)
+\end{align*}
+so that the derivative of the distance to the stationary distribution is given by:
+\begin{align*}
+    \frac{d}{dt}||p - \pi ||^2_{D^{-1}} &= \frac{d}{dt} ||D^{1/2} e^{-t\mathcal{L}}D^{1/2} (p^{(0)} - \pi) ||^2_{D^{-1}}\\
+    &= -(p(0) - \pi)^T D^{-1/2}e^{-t\mathcal{L}}\mathcal{L}e^{-t\mathcal{L}}D^{-1/2}(p(0) - \pi)\\
+    &= -(D^{-1}(p(t) - \pi))^{-1}L(D^{-1}(p(t) - \pi))
+\end{align*}
+
+In order to evaluate our progress we consider the ratio:
+\[
+    \frac{\frac{d}{dt}||p(t) - \pi||^2_{D^{-1}}}{||p(t) - \pi||^2_{D^{-1}}}
+\]
+
+we have:
+\begin{align*}
+    \frac{\frac{d}{dt}||p(t) - \pi||^2_{D^{-1}}}{||p(t) - \pi||^2_{D^{-1}}} &= - \frac{(p(t) - \pi)^TD^{-1/2} \mathcal{L} D^{-1/2}(p(t) - \pi)}{(p(t) - \pi)^TD^{-1/2}I D^{-1/2}(p(t) - \pi)}\\
+    &\leq \underset{D^{1/2}y^T1 =0}{\min}\frac{y^T\mathcal{L} y}{y^Ty}
+\end{align*}
+\textcolor{blue}{edit:
+\begin{align*}
+    \frac{\frac{d}{dt}||p(t) - \pi||^2_{D^{-1}}}{||p(t) - \pi||^2_{D^{-1}}} &= - \frac{(p(t) - \pi)^TD^{-1/2} \mathcal{L} D^{-1/2}(p(t) - \pi)}{(p(t) - \pi)^TD^{-1/2}I D^{-1/2}(p(t) - \pi)}\\
+    &\leq - \underset{D^{1/2}y^T1 =0}{\min}\frac{y^T\mathcal{L} y}{y^Ty}
+\end{align*}
+}
+
+
+\begin{theorem}
+\[
+    ||p(t) - \pi||^2_{D^{-1}} \leq e^{-t\lambda_2}(p(0) - \pi)^2_{D^{-1}}
+\]
+\end{theorem}
+
+\begin{definition}[Spectral Gap]
+The spectral Gap is the quantity:
+\[
+\lambda_2(\mathcal{L}) = \underset{D^{1/2}y^T1 =0}{\min}\frac{y^T\mathcal{L} y}{y^Ty} 
+\]
+
+this equals:
+\[
+    \underset{x^TD1}{\min} \frac{x^TLx}{x^TDx}
+\]
+\end{definition}
+\textcolor{blue}{edit: 
+\[
+    \underset{x^TD1=0}{\min} \frac{x^TLx}{x^TDx}
+\]}
+
+
+
+\section*{Examples of Spectral Gaps}
+
+\subsection*{Spectral Gap of Complete Graphs}
+The complete graph $K_n$ has Laplacian matrix:
+\[
+    L(K_n) = nI - 11^T
+\]
+\[
+    D(K_n) = (n-1)\cdot I
+\]
+And hence the spectral gap is given by:
+\[
+    \frac{n}{n-1} = 1 + \frac{1}{n-1}
+\]
+which is the largest possible.
+
+\subsection*{Spectral Gap of n-Cycle}
+The spectral gap of an $n$-cycle is $O\left(\frac{1}{n^2}\right)$
+\end{document}
